@@ -17,26 +17,20 @@ import lombok.*;
 public class Identifikasi extends BaseAuditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
     private Long id;
 
-    @NotNull(message = "Nama risiko wajib diisi!")
     @Column(name = "nama_risiko")
     private String namaRisiko;
 
-    @NotNull(message = "Jenis risiko wajib diisi!")
     @Column(name = "jenis_risiko")
     private String jenisRisiko;
 
-    @NotNull(message = "Kemungkinan kecurangan tidak boleh kosong!")
     @Column(name = "kemungkinan_kecurangan")
     private String kemungkinanKecurangan;
 
-    @NotNull(message = "Indikasi wajib diisi!")
     @Column(name = "indikasi")
     private String indikasi;
 
-    @NotNull(message = "Wajib mengisi pihak terkait!")
     @Column(name = "kemungkinan_pihak_terkait")
     private String kemungkinanPihakTerkait;
 

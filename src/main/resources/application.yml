@@ -16,6 +16,19 @@ spring:
     user:
       name: admin
       password: admin123
+  jpa:
+    # Show SQL statements
+    show-sql: true
+    # Hibernate specific properties
+    properties:
+      hibernate:
+        # Format SQL for better readability
+        format_sql: true
+        # Use field access instead of property access
+        access:
+          strategy: field
+        # Disable new ID generator mappings (optional)
+        use-new-id-generator-mappings: false
   data:
     redis:
       host: localhost
@@ -34,7 +47,12 @@ logging:
     root: warn
     org:
       hibernate:
-        SQL: trace
+        SQL: DEBUG
+        type:
+          descriptor:
+            sql:
+              BasicBinder: TRACE
+        transaction: DEBUG
         orm:
           jdbc:
             bind: trace
@@ -61,3 +79,4 @@ springdoc:
     disable-swagger-default-url: true
   override-with-generic-response: false
   show-actuator: false
+

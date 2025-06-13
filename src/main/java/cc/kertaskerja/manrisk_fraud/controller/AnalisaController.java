@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -21,12 +22,22 @@ public class AnalisaController {
 
     private final AnalisaService analisaService;
 
-    @GetMapping
+    @GetMapping("/getAllData/{nip}/{tahun}")
     @Operation(summary = "Ambil semua data analisa")
-    public ResponseEntity<ApiResponse<List<AnalisaDTO>>> getAllData() {
-        List<AnalisaDTO> analisaList = analisaService.findAllAnalisa();
+    public ResponseEntity<ApiResponse<List<AnalisaDTO>>> getAllData(@PathVariable String nip,
+                                                                    @PathVariable String tahun) {
+        List<AnalisaDTO> analisaList = analisaService.findAllAnalisa(nip, tahun);
         ApiResponse<List<AnalisaDTO>> response = ApiResponse.success(analisaList,
                 "Retrieved " + analisaList.size() + " data successfully");
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/getOne/{idManrisk}")
+    @Operation(summary = "Ambil satu data analisa berdasarkan ID Manrisk")
+    public ResponseEntity<ApiResponse<AnalisaDTO>> getByIdManrisk(@PathVariable String idManrisk) {
+        AnalisaDTO dto = analisaService.findOneAnalisa(idManrisk);
+        ApiResponse<AnalisaDTO> response = ApiResponse.success(dto, "Retrieved 1 data successfully");
 
         return ResponseEntity.ok(response);
     }

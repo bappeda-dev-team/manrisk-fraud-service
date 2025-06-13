@@ -7,5 +7,7 @@ import java.util.List;
 
 @Service
 public interface AnalisaService {
-    List<AnalisaDTO> findAllAnalisa();
+    List<AnalisaDTO> findAllAnalisa(String nip, String tahun);
+
+    AnalisaDTO findOneAnalisa(String idManrisk);
 }

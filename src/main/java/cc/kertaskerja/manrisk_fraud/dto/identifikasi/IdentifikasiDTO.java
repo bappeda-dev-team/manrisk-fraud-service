@@ -3,6 +3,7 @@ package cc.kertaskerja.manrisk_fraud.dto.identifikasi;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
@@ -16,24 +17,29 @@ import java.time.LocalDateTime;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class IdentifikasiDTO {
     private Long id;
+
+    @NotBlank(message = "Nama risiko wajib diisi")
     @JsonProperty("nama_risiko")
     private String nama_risiko;
 
+    @NotBlank(message = "Jenis risiko wajib diisi")
     @JsonProperty("jenis_risiko")
     private String jenis_risiko;
 
+    @NotBlank(message = "Kemungkinan kecurangan wajib diisi")
     @JsonProperty("kemungkinan_kecurangan")
     private String kemungkinan_kecurangan;
 
+    @NotBlank(message = "Indikasi wajib diisi")
     @JsonProperty("indikasi")
     private String indikasi;
 
+    @NotBlank(message = "Kemungkinan pihak terkait wajib diisi")
     @JsonProperty("kemungkinan_pihak_terkait")
     private String kemungkinan_pihak_terkait;
 
     @JsonProperty("keterangan")
     private String keterangan;
-
 
     private Integer id_pohon;
     private String nama_pohon;
