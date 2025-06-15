@@ -8,7 +8,4 @@ import org.springframework.data.repository.query.Param;
 import java.util.Optional;
 
 public interface AnalisaRepository extends JpaRepository<Analisa, Long> {
-
-    @Query("SELECT a FROM Analisa a WHERE a.idManrisk.idManrisk = :idManrisk")
-    Optional<Analisa> findByIdManrisk(@Param("idManrisk") String idManrisk);
 }

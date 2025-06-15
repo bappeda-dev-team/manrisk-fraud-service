@@ -30,10 +30,6 @@ public class AnalisaDTO {
     private String id_pegawai;
     private String nama_pegawai;
 
-    @NotNull(message = "idManrisk wajib diisi")
-    @JsonProperty("id_manrisk")
-    private String id_manrisk;
-
     @Getter
     @Setter
     @NoArgsConstructor

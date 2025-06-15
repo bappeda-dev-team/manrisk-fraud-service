@@ -2,14 +2,16 @@ package cc.kertaskerja.manrisk_fraud.service.identifikasi;
 
 import cc.kertaskerja.manrisk_fraud.dto.identifikasi.IdentifikasiDTO;
 import cc.kertaskerja.manrisk_fraud.entity.Identifikasi;
-import cc.kertaskerja.manrisk_fraud.entity.Manrisk;
 import cc.kertaskerja.manrisk_fraud.repository.IdentifikasiRepository;
-import cc.kertaskerja.manrisk_fraud.repository.ManriskRepository;
-import cc.kertaskerja.manrisk_fraud.service.global.RencanaKinerjaService;
+import cc.kertaskerja.manrisk_fraud.service.global.AccessTokenService;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -18,139 +20,117 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class IdentifikasiServiceImpl implements IdentifikasiService {
 
-    private final ManriskRepository manriskRepository;
     private final IdentifikasiRepository identifikasiRepository;
-    private final RencanaKinerjaService rekinService;
+    private final RestTemplate restTemplate;
+    private final AccessTokenService accessTokenService;
 
-    private IdentifikasiDTO toDTO(Identifikasi identifikasi, Map<String, Object> externalData) {
-        IdentifikasiDTO dto = new IdentifikasiDTO(
-                identifikasi.getId(),
-                identifikasi.getNamaRisiko(),
-                identifikasi.getJenisRisiko(),
-                identifikasi.getKemungkinanKecurangan(),
-                identifikasi.getIndikasi(),
-                identifikasi.getKemungkinanPihakTerkait(),
-                identifikasi.getKeterangan(),
-                null, // id_pohon
-                null, // nama_pohon
-                null, // nama_rencana_kinerja
-                null, // tahun
-                null, // status_rencana_kinerja
-                null, // operasional_daerah
-                null, // id_pegawai
-                null, // nama_pegawai,
-                identifikasi.getIdManrisk().getIdManrisk(),
-                identifikasi.getCreatedAt(),
-                identifikasi.getUpdatedAt()
-        );
 
-        if (externalData != null && externalData.get("rencana_kinerja") instanceof List<?> rencanaList) {
-            if (!rencanaList.isEmpty() && rencanaList.get(0) instanceof Map<?, ?> map) {
-                dto.setId_pohon((Integer) map.get("id_pohon"));
-                dto.setNama_pohon((String) map.get("nama_pohon"));
-                dto.setNama_rencana_kinerja((String) map.get("nama_rencana_kinerja"));
-                dto.setTahun((String) map.get("tahun"));
-                dto.setStatus_rencana_kinerja((String) map.get("status_rencana_kinerja"));
-                dto.setId_pegawai((String) map.get("pegawai_id"));
-                dto.setNama_pegawai((String) map.get("nama_pegawai"));
-
-                if (map.get("operasional_daerah") instanceof Map<?, ?> opdMap) {
-                    String kodeOpd = (String) opdMap.get("kode_opd");
-                    String namaOpd = (String) opdMap.get("nama_opd");
-                    dto.setOperasional_daerah(new IdentifikasiDTO.OperasionalDaerah(kodeOpd, namaOpd));
-                }
-            }
-        }
-
-        return dto;
+    private IdentifikasiDTO buildDTOFromRkAndIdentifikasi(JsonNode rk, Identifikasi ident) {
+        return IdentifikasiDTO.builder()
+                .id(ident.getId())
+                .id_rencana_kinerja(rk.path("id_rencana_kinerja").asText())
+                .id_pohon(rk.path("id_pohon").asInt())
+                .nama_pohon(rk.path("nama_pohon").asText())
+                .level_pohon(rk.path("level_pohon").asInt())
+                .nama_rencana_kinerja(rk.path("nama_rencana_kinerja").asText())
+                .tahun(rk.path("tahun").asText())
+                .status_rencana_kinerja(rk.path("status_rencana_kinerja").asText())
+                .pegawai_id(rk.path("pegawai_id").asText())
+                .nama_pegawai(rk.path("nama_pegawai").asText())
+                .operasional_daerah(IdentifikasiDTO.OperasionalDaerah.builder()
+                        .kode_opd(rk.path("operasional_daerah").path("kode_opd").asText())
+                        .nama_opd(rk.path("operasional_daerah").path("nama_opd").asText())
+                        .build())
+                .nama_risiko(ident.getNamaRisiko())
+                .jenis_risiko(ident.getJenisRisiko())
+                .kemungkinan_kecurangan(ident.getKemungkinanKecurangan())
+                .indikasi(ident.getIndikasi())
+                .kemungkinan_pihak_terkait(ident.getKemungkinanPihakTerkait())
+                .status(ident.getStatus())
+                .keterangan(ident.getKeterangan())
+                .created_at(ident.getCreatedAt())
+                .updated_at(ident.getUpdatedAt())
+                .build();
     }
 
-    private IdentifikasiDTO toPostDTO(Identifikasi identifikasi) {
-        return new IdentifikasiDTO(
-                identifikasi.getId(),
-                identifikasi.getNamaRisiko(),
-                identifikasi.getJenisRisiko(),
-                identifikasi.getKemungkinanKecurangan(),
-                identifikasi.getIndikasi(),
-                identifikasi.getKemungkinanPihakTerkait(),
-                identifikasi.getKeterangan(),
-                null, null, null, null, null, null, null, null,
-                identifikasi.getIdManrisk().getIdManrisk(),
-                identifikasi.getCreatedAt(),
-                null
-        );
+    private IdentifikasiDTO buildDTOFromRkOnly(JsonNode rk) {
+        return IdentifikasiDTO.builder()
+                .id(null)
+                .id_rencana_kinerja(rk.path("id_rencana_kinerja").asText())
+                .id_pohon(rk.path("id_pohon").asInt())
+                .nama_pohon(rk.path("nama_pohon").asText())
+                .level_pohon(rk.path("level_pohon").asInt())
+                .nama_rencana_kinerja(rk.path("nama_rencana_kinerja").asText())
+                .tahun(rk.path("tahun").asText())
+                .status_rencana_kinerja(rk.path("status_rencana_kinerja").asText())
+                .pegawai_id(rk.path("pegawai_id").asText())
+                .nama_pegawai(rk.path("nama_pegawai").asText())
+                .operasional_daerah(IdentifikasiDTO.OperasionalDaerah.builder()
+                        .kode_opd(rk.path("operasional_daerah").path("kode_opd").asText())
+                        .nama_opd(rk.path("operasional_daerah").path("nama_opd").asText())
+                        .build())
+                .nama_risiko("-")
+                .jenis_risiko("-")
+                .kemungkinan_kecurangan("-")
+                .indikasi("-")
+                .kemungkinan_pihak_terkait("-")
+                .status("-")
+                .keterangan("-")
+                .created_at(null)
+                .updated_at(null)
+                .build();
     }
+
 
     @Override
     public List<IdentifikasiDTO> findAllIdentifikasi(String nip, String tahun) {
+        String token = accessTokenService.getAccessToken();
+        String url = String.format("https://api-ekak.zeabur.app/get_rencana_kinerja/pegawai/%s?tahun=%s", nip, tahun);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setBearerAuth(token);
+
+        HttpEntity<Void> entity = new HttpEntity<>(headers);
+        ResponseEntity<JsonNode> response = restTemplate.exchange(url, HttpMethod.GET, entity, JsonNode.class);
+
+        JsonNode eksternalResponse = response.getBody();
+
+        List<JsonNode> rencanaKinerjaList = new ArrayList<>();
+        if (eksternalResponse != null && eksternalResponse.has("rencana_kinerja")) {
+            eksternalResponse.get("rencana_kinerja").forEach(rencanaKinerjaList::add);
+        }
+
         List<Identifikasi> identifikasiList = identifikasiRepository.findAll();
 
-        Map<String, Object> externalData = rekinService.getRencanaKinerja(nip, tahun);
-        List<Map<String, Object>> rekinList = (List<Map<String, Object>>) externalData.get("rencana_kinerja");
+        Map<String, List<Identifikasi>> identifikasiMap = identifikasiList.stream()
+                .collect(Collectors.groupingBy(Identifikasi::getIdRekin));
 
-        return identifikasiList.stream()
-                .map(identifikasi -> {
-                    String idManrisk = identifikasi.getIdManrisk().getIdManrisk();
-                    Map<String, Object> matchingRekin = rekinList.stream()
-                            .filter(r -> idManrisk.equals(r.get("id_rencana_kinerja")))
-                            .findFirst()
-                            .orElse(null);
+        List<IdentifikasiDTO> result = new ArrayList<>();
 
-                    if (matchingRekin != null) {
-                        return toDTO(identifikasi, Map.of("rencana_kinerja", List.of(matchingRekin)));
-                    }
-                    return null;
-                })
-                .filter(dto -> dto != null) // Filter out nulls (non-matches)
-                .collect(Collectors.toList());
+        for (JsonNode rk : rencanaKinerjaList) {
+            String idRencana = rk.get("id_rencana_kinerja").asText();
+            List<Identifikasi> terkait = identifikasiMap.getOrDefault(idRencana, List.of());
+
+            if (!terkait.isEmpty()) {
+                for (Identifikasi ident : terkait) {
+                    result.add(buildDTOFromRkAndIdentifikasi(rk, ident));
+                }
+            } else {
+                result.add(buildDTOFromRkOnly(rk));
+            }
+        }
+
+        return result;
     }
 
     @Override
     public IdentifikasiDTO findOneIdentifikasi(String idManrisk) {
-        Identifikasi identifikasi = identifikasiRepository
-                .findByIdManrisk(idManrisk)
-                .orElseThrow(() -> new RuntimeException("Identifikasi not found for ID Manrisk: " + idManrisk));
-
-        Map<String, Object> rekin = rekinService.getDetailRencanaKinerja(idManrisk);
-        Object rk = rekin.get("rencana_kinerja");
-
-        if (rk instanceof Map<?, ?> rencanaMap) {
-            return toDTO(identifikasi, Map.of("rencana_kinerja", List.of(rencanaMap)));
-        } else {
-            return toDTO(identifikasi, null);
-        }
+        return null;
     }
 
     @Override
-    @Transactional
-    public IdentifikasiDTO saveDataIdentifikasi(IdentifikasiDTO identifikasiDto) {
-        // Check if id_manrisk already exists
-        boolean exists = manriskRepository.existsById(identifikasiDto.getId_manrisk());
-
-        if (exists) {
-            throw new RuntimeException("Data identifikasi dengan id_manrisk " + identifikasiDto.getId_manrisk() + " sudah ada.");
-        }
-
-        // Save to table manrisk first
-        Manrisk newManrisk = new Manrisk();
-        newManrisk.setIdManrisk(identifikasiDto.getId_manrisk());
-        manriskRepository.save(newManrisk);
-
-        // Create identifikasi entity manually (not using builder)
-        Identifikasi identifikasi = new Identifikasi();
-        identifikasi.setNamaRisiko(identifikasiDto.getNama_risiko());
-        identifikasi.setJenisRisiko(identifikasiDto.getJenis_risiko());
-        identifikasi.setKemungkinanKecurangan(identifikasiDto.getKemungkinan_kecurangan());
-        identifikasi.setIndikasi(identifikasiDto.getIndikasi());
-        identifikasi.setKemungkinanPihakTerkait(identifikasiDto.getKemungkinan_pihak_terkait());
-        identifikasi.setKeterangan(identifikasiDto.getKeterangan());
-        identifikasi.setIdManrisk(newManrisk);
-
-        // Debug before saving
-        System.out.println("Before save - namaRisiko: " + identifikasi.getNamaRisiko());
-        System.out.println("Before save - jenisRisiko: " + identifikasi.getJenisRisiko());
-
-        Identifikasi saved = identifikasiRepository.save(identifikasi);
-        return toPostDTO(saved);
+    public IdentifikasiDTO saveIdentifikasi(IdentifikasiDTO identifikasiDTO) {
+        return null;
     }
 }

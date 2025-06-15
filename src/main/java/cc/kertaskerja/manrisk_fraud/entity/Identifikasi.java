@@ -12,12 +12,15 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString(callSuper = true)
-@EqualsAndHashCode(callSuper = true, exclude = "idManrisk")
 @Builder
 public class Identifikasi extends BaseAuditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name = "id_rekin")
+    private String idRekin;
+
 
     @Column(name = "nama_risiko")
     private String namaRisiko;
@@ -34,11 +37,9 @@ public class Identifikasi extends BaseAuditable {
     @Column(name = "kemungkinan_pihak_terkait")
     private String kemungkinanPihakTerkait;
 
+    @Column(name = "status")
+    private String status;
+
     @Column(name = "keterangan")
     private String keterangan;
-
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_manrisk", unique = true, nullable = false)
-    private Manrisk idManrisk;
-
 }

@@ -46,17 +46,9 @@ public class Analisa extends BaseAuditable {
     @Column(name = "skala_kemungkinan")
     private int skalaKemungkinan;
 
-    @NotNull(message = "Tingakt risiko tidak boleh kosong!")
-    @Column(name = "tingkat_risiko")
-    private String tingkatRisiko;
-
     @Column(name = "status")
     private String status;
 
     @Column(name = "keterangan")
     private String keterangan;
-
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_manrisk", unique = true, nullable = false)
-    private Manrisk idManrisk;
 }

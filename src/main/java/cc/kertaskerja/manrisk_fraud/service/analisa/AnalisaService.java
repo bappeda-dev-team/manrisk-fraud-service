@@ -10,4 +10,6 @@ public interface AnalisaService {
     List<AnalisaDTO> findAllAnalisa(String nip, String tahun);
 
     AnalisaDTO findOneAnalisa(String idManrisk);
+
+    AnalisaDTO saveAnalisa(AnalisaDTO analisaDTO);
 }

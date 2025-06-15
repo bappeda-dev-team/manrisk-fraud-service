@@ -2,9 +2,6 @@ package cc.kertaskerja.manrisk_fraud.dto.identifikasi;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -17,55 +14,37 @@ import java.time.LocalDateTime;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class IdentifikasiDTO {
     private Long id;
-
-    @NotBlank(message = "Nama risiko wajib diisi")
-    @JsonProperty("nama_risiko")
-    private String nama_risiko;
-
-    @NotBlank(message = "Jenis risiko wajib diisi")
-    @JsonProperty("jenis_risiko")
-    private String jenis_risiko;
-
-    @NotBlank(message = "Kemungkinan kecurangan wajib diisi")
-    @JsonProperty("kemungkinan_kecurangan")
-    private String kemungkinan_kecurangan;
-
-    @NotBlank(message = "Indikasi wajib diisi")
-    @JsonProperty("indikasi")
-    private String indikasi;
-
-    @NotBlank(message = "Kemungkinan pihak terkait wajib diisi")
-    @JsonProperty("kemungkinan_pihak_terkait")
-    private String kemungkinan_pihak_terkait;
-
-    @JsonProperty("keterangan")
-    private String keterangan;
-
+    private String id_rencana_kinerja;
     private Integer id_pohon;
     private String nama_pohon;
+    private Integer level_pohon;
     private String nama_rencana_kinerja;
     private String tahun;
     private String status_rencana_kinerja;
-    private OperasionalDaerah operasional_daerah;
-    private String id_pegawai;
+    private String pegawai_id;
     private String nama_pegawai;
+    private OperasionalDaerah operasional_daerah;
 
-    @NotNull(message = "idManrisk wajib diisi")
-    @JsonProperty("id_manrisk")
-    private String id_manrisk;
+    private String nama_risiko;
+    private String jenis_risiko;
+    private String kemungkinan_kecurangan;
+    private String indikasi;
+    private String kemungkinan_pihak_terkait;
+    private String status;
+    private String keterangan;
 
-    @Getter
-    @Setter
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime created_at;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime updated_at;
+
+    @Data
+    @Builder // <-- Tambahkan ini
     @NoArgsConstructor
     @AllArgsConstructor
     public static class OperasionalDaerah {
         private String kode_opd;
         private String nama_opd;
     }
-
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss.SSS")
-    private java.time.LocalDateTime createdAt;
-
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss.SSS")
-    private java.time.LocalDateTime updatedAt;
 }

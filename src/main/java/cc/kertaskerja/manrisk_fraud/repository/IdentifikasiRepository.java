@@ -5,11 +5,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface IdentifikasiRepository extends JpaRepository<Identifikasi, Long> {
-
-    @Query("SELECT i FROM Identifikasi i WHERE i.idManrisk.idManrisk = :idManrisk")
-    Optional<Identifikasi> findByIdManrisk(@Param("idManrisk") String idManrisk);
-
 }

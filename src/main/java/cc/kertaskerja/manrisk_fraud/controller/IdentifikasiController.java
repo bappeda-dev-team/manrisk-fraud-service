@@ -2,9 +2,11 @@ package cc.kertaskerja.manrisk_fraud.controller;
 
 import cc.kertaskerja.manrisk_fraud.dto.ApiResponse;
 import cc.kertaskerja.manrisk_fraud.dto.identifikasi.IdentifikasiDTO;
+import cc.kertaskerja.manrisk_fraud.dto.identifikasi.IdentifikasiReqDTO;
 import cc.kertaskerja.manrisk_fraud.service.identifikasi.IdentifikasiService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,11 +26,8 @@ public class IdentifikasiController {
     @Operation(summary = "Ambil semua data identifikasi")
     public ResponseEntity<ApiResponse<List<IdentifikasiDTO>>> getAllData(@PathVariable String nip,
                                                                          @PathVariable String tahun) {
-        List<IdentifikasiDTO> identifikasiList = identifikasiService.findAllIdentifikasi(nip, tahun);
-        ApiResponse<List<IdentifikasiDTO>> response = ApiResponse.success(identifikasiList,
-                "Retrieved " + identifikasiList.size() + " data successfully");
-
-        return ResponseEntity.ok(response);
+        List<IdentifikasiDTO> result = identifikasiService.findAllIdentifikasi(nip, tahun);
+        return ResponseEntity.ok(ApiResponse.success(result, "Retrieved " + result.size() + " data successfully"));
     }
 
     @GetMapping("/getOne/{idManrisk}")
@@ -40,18 +39,12 @@ public class IdentifikasiController {
         return ResponseEntity.ok(response);
     }
 
-
     @PostMapping
-    @Operation(summary = "Tambah data identifikasi")
-    public ResponseEntity<ApiResponse<IdentifikasiDTO>> create(@RequestBody IdentifikasiDTO dto) {
-        try {
-            IdentifikasiDTO created = identifikasiService.saveDataIdentifikasi(dto);
-            return new ResponseEntity<>(ApiResponse.created(created), HttpStatus.CREATED);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>(
-                    ApiResponse.error(400, e.getMessage()),
-                    HttpStatus.BAD_REQUEST
-            );
-        }
+    @Operation(summary = "Simpan data identifikasi baru")
+    public ResponseEntity<ApiResponse<IdentifikasiDTO>> saveIdentifikasi(@Valid @RequestBody IdentifikasiDTO req) {
+        IdentifikasiDTO result = identifikasiService.saveIdentifikasi(req);
+        ApiResponse<IdentifikasiDTO> response = ApiResponse.success(result, "Data berhasil disimpan");
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 }
