@@ -22,27 +22,21 @@ public class Analisa extends BaseAuditable {
     @Column(name = "id")
     private Long id;
 
-    @NotNull(message = "Nama risiko tidak boleh koson!")
+    @Column(name = "id_rekin")
+    private String idRekin;
+
     @Column(name = "nama_risiko")
     private String namaRisiko;
 
-    @NotNull(message = "Kolom penyebab tidak boleh kosong!")
     @Column(name = "penyebab")
     private String penyebab;
 
-    @NotNull(message = "Kolom akbiat tidak boleh kosong!")
     @Column(name = "akibat")
     private String akibat;
 
-    @NotNull(message = "Skala dampak tidak boleh kosong!")
-    @Min(value = 1, message = "Skala dampak minimal 1")
-    @Max(value = 5, message = "Skala dampak maksimal 5")
     @Column(name = "skala_dampak")
     private int skalaDampak;
 
-    @NotNull(message = "Skala kemungkinan tidak boleh kosong!")
-    @Min(value = 1, message = "Skala kemungkinan minimal 1")
-    @Max(value = 5, message = "Skala kemungkinan maksimal 5")
     @Column(name = "skala_kemungkinan")
     private int skalaKemungkinan;
 

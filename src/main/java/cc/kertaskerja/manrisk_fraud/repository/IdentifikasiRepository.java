@@ -9,4 +9,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface IdentifikasiRepository extends JpaRepository<Identifikasi, Long> {
+
+    @Query("SELECT i FROM Identifikasi i WHERE i.idRekin = :idRekin")
+    Optional<Identifikasi> findOneByIdRekin(@Param("idRekin") String idRekin);
+
+    boolean existsByIdRekin(String idRekin);
 }

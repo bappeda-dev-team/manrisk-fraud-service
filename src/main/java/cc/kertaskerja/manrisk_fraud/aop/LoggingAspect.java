@@ -15,7 +15,6 @@ public class LoggingAspect {
     @Around("execution(* cc.kertaskerja.manrisk_fraud.service..*(..))")
     public Object logExecutionTimeAndErrors(ProceedingJoinPoint joinPoint) throws Throwable {
         String methodName = joinPoint.getSignature().toShortString();
-        MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
 
         long startTime = System.currentTimeMillis();
 

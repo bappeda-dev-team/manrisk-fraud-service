@@ -1,15 +1,16 @@
 package cc.kertaskerja.manrisk_fraud.service.identifikasi;
 
-import cc.kertaskerja.manrisk_fraud.dto.identifikasi.IdentifikasiDTO;
+import cc.kertaskerja.manrisk_fraud.dto.IdentifikasiDTO;
 import cc.kertaskerja.manrisk_fraud.entity.Identifikasi;
+import cc.kertaskerja.manrisk_fraud.exception.InternalServerException;
+import cc.kertaskerja.manrisk_fraud.exception.ResourceNotFoundException;
 import cc.kertaskerja.manrisk_fraud.repository.IdentifikasiRepository;
-import cc.kertaskerja.manrisk_fraud.service.global.AccessTokenService;
+import cc.kertaskerja.manrisk_fraud.service.global.RencanaKinerjaService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.*;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,9 +22,8 @@ import java.util.stream.Collectors;
 public class IdentifikasiServiceImpl implements IdentifikasiService {
 
     private final IdentifikasiRepository identifikasiRepository;
-    private final RestTemplate restTemplate;
-    private final AccessTokenService accessTokenService;
-
+    private final RencanaKinerjaService rencanaKinerjaService;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     private IdentifikasiDTO buildDTOFromRkAndIdentifikasi(JsonNode rk, Identifikasi ident) {
         return IdentifikasiDTO.builder()
@@ -69,13 +69,13 @@ public class IdentifikasiServiceImpl implements IdentifikasiService {
                         .kode_opd(rk.path("operasional_daerah").path("kode_opd").asText())
                         .nama_opd(rk.path("operasional_daerah").path("nama_opd").asText())
                         .build())
-                .nama_risiko("-")
-                .jenis_risiko("-")
-                .kemungkinan_kecurangan("-")
-                .indikasi("-")
-                .kemungkinan_pihak_terkait("-")
-                .status("-")
-                .keterangan("-")
+                .nama_risiko("")
+                .jenis_risiko("")
+                .kemungkinan_kecurangan("")
+                .indikasi("")
+                .kemungkinan_pihak_terkait("")
+                .status("")
+                .keterangan("")
                 .created_at(null)
                 .updated_at(null)
                 .build();
@@ -84,40 +84,35 @@ public class IdentifikasiServiceImpl implements IdentifikasiService {
 
     @Override
     public List<IdentifikasiDTO> findAllIdentifikasi(String nip, String tahun) {
-        String token = accessTokenService.getAccessToken();
-        String url = String.format("https://api-ekak.zeabur.app/get_rencana_kinerja/pegawai/%s?tahun=%s", nip, tahun);
+        // Step 1: Call external API via RencanaKinerjaService
+        Map<String, Object> eksternalResponse = rencanaKinerjaService.getRencanaKinerja(nip, tahun);
+        Object rkObj = eksternalResponse.get("rencana_kinerja");
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setBearerAuth(token);
-
-        HttpEntity<Void> entity = new HttpEntity<>(headers);
-        ResponseEntity<JsonNode> response = restTemplate.exchange(url, HttpMethod.GET, entity, JsonNode.class);
-
-        JsonNode eksternalResponse = response.getBody();
-
-        List<JsonNode> rencanaKinerjaList = new ArrayList<>();
-        if (eksternalResponse != null && eksternalResponse.has("rencana_kinerja")) {
-            eksternalResponse.get("rencana_kinerja").forEach(rencanaKinerjaList::add);
+        if (!(rkObj instanceof List<?> rkList)) {
+            throw new ResourceNotFoundException("No 'Rencana Kinerja' data found for NIP: " + nip + " and year: " + tahun);
         }
 
-        List<Identifikasi> identifikasiList = identifikasiRepository.findAll();
+        List<Map<String, Object>> rekinList = (List<Map<String, Object>>) rkList;
 
+        // Step 2: Get local data
+        List<Identifikasi> identifikasiList = identifikasiRepository.findAll();
         Map<String, List<Identifikasi>> identifikasiMap = identifikasiList.stream()
                 .collect(Collectors.groupingBy(Identifikasi::getIdRekin));
 
+        // Step 3: Combine both
         List<IdentifikasiDTO> result = new ArrayList<>();
 
-        for (JsonNode rk : rencanaKinerjaList) {
-            String idRencana = rk.get("id_rencana_kinerja").asText();
-            List<Identifikasi> terkait = identifikasiMap.getOrDefault(idRencana, List.of());
+        for (Map<String, Object> rk : rekinList) {
+            JsonNode rkNode = objectMapper.convertValue(rk, JsonNode.class);
+            String idRencana = rkNode.get("id_rencana_kinerja").asText();
+            List<Identifikasi> temp = identifikasiMap.getOrDefault(idRencana, List.of());
 
-            if (!terkait.isEmpty()) {
-                for (Identifikasi ident : terkait) {
-                    result.add(buildDTOFromRkAndIdentifikasi(rk, ident));
+            if (!temp.isEmpty()) {
+                for (Identifikasi ident : temp) {
+                    result.add(buildDTOFromRkAndIdentifikasi(rkNode, ident));
                 }
             } else {
-                result.add(buildDTOFromRkOnly(rk));
+                result.add(buildDTOFromRkOnly(rkNode));
             }
         }
 
@@ -125,12 +120,99 @@ public class IdentifikasiServiceImpl implements IdentifikasiService {
     }
 
     @Override
-    public IdentifikasiDTO findOneIdentifikasi(String idManrisk) {
-        return null;
+    public IdentifikasiDTO findOneIdentifikasi(String idRekin) {
+        // Step 1: Ambil data dari external API
+        Map<String, Object> detailResponse = rencanaKinerjaService.getDetailRencanaKinerja(idRekin);
+        Object rkObj = detailResponse.get("rencana_kinerja");
+
+        if (rkObj == null) {
+            throw new ResourceNotFoundException("Data rencana kinerja is not found");
+        }
+
+        JsonNode rkNode = objectMapper.convertValue(rkObj, JsonNode.class);
+
+        // Step 2: Cari di database lokal
+        return identifikasiRepository.findOneByIdRekin(idRekin)
+                .map(ident -> buildDTOFromRkAndIdentifikasi(rkNode, ident)) // Jika ada, gabungkan data lokal + eksternal
+                .orElseGet(() -> buildDTOFromRkOnly(rkNode)); // Jika tidak ada, tampilkan data dari eksternal saja
     }
 
     @Override
+    @Transactional
     public IdentifikasiDTO saveIdentifikasi(IdentifikasiDTO identifikasiDTO) {
-        return null;
+        String idRekin = identifikasiDTO.getId_rencana_kinerja();
+
+        if (idRekin == null || idRekin.isEmpty()) {
+            throw new ResourceNotFoundException("id_rencana_kinerja is required");
+        }
+
+        // Step 1: Validate against external API via the RencanaKinerjaService
+        Map<String, Object> detailResponse;
+        try {
+            detailResponse = rencanaKinerjaService.getDetailRencanaKinerja(idRekin);
+        } catch (Exception e) {
+            throw new ResourceNotFoundException("ID Rencana Kinerja not found in external API: " + idRekin);
+        }
+
+        Object rkObj = detailResponse.get("rencana_kinerja");
+        if (rkObj == null) {
+            throw new ResourceNotFoundException("Data rencana_kinerja not found in external API");
+        }
+
+        JsonNode rkNode = objectMapper.convertValue(rkObj, JsonNode.class);
+
+        // Step 2: Check for existing record
+        if (identifikasiRepository.existsByIdRekin(idRekin)) {
+            throw new InternalServerException("Data identifikasi already exists for id_rencana_kinerja: " + idRekin);
+        }
+
+        // Step 3: Save entity
+        Identifikasi ident = Identifikasi.builder()
+                .idRekin(idRekin)
+                .namaRisiko(identifikasiDTO.getNama_risiko())
+                .jenisRisiko(identifikasiDTO.getJenis_risiko())
+                .kemungkinanKecurangan(identifikasiDTO.getKemungkinan_kecurangan())
+                .indikasi(identifikasiDTO.getIndikasi())
+                .kemungkinanPihakTerkait(identifikasiDTO.getKemungkinan_pihak_terkait())
+                .status("Pending")
+                .keterangan(identifikasiDTO.getKeterangan())
+                .build();
+
+        Identifikasi saved = identifikasiRepository.save(ident);
+
+        // Step 4: Combine and return
+        return buildDTOFromRkAndIdentifikasi(rkNode, saved);
+    }
+
+    @Override
+    @Transactional
+    public IdentifikasiDTO updateIdentifikasi(String idRekin, IdentifikasiDTO identifikasiDTO) {
+        Identifikasi ident = identifikasiRepository.findOneByIdRekin(idRekin)
+                .orElseThrow(() -> new ResourceNotFoundException("Data identifikasi not found for ID Rencana Kinerja: " + idRekin));
+
+        // Update fields
+        ident.setNamaRisiko(identifikasiDTO.getNama_risiko());
+        ident.setJenisRisiko(identifikasiDTO.getJenis_risiko());
+        ident.setKemungkinanKecurangan(identifikasiDTO.getKemungkinan_kecurangan());
+        ident.setIndikasi(identifikasiDTO.getIndikasi());
+        ident.setKemungkinanPihakTerkait(identifikasiDTO.getKemungkinan_pihak_terkait());
+        ident.setKeterangan(identifikasiDTO.getKeterangan());
+
+        Identifikasi updated = identifikasiRepository.save(ident);
+
+        // Get external data for response
+        Map<String, Object> detailResponse = rencanaKinerjaService.getDetailRencanaKinerja(idRekin);
+        JsonNode rkNode = objectMapper.convertValue(detailResponse.get("rencana_kinerja"), JsonNode.class);
+
+        return buildDTOFromRkAndIdentifikasi(rkNode, updated);
+    }
+
+    @Override
+    @Transactional
+    public void deleteIdentifikasi(String idRekin) {
+        Identifikasi identifikasi = identifikasiRepository.findOneByIdRekin(idRekin)
+                .orElseThrow(() -> new ResourceNotFoundException("Identifikasi not found for id_rencana_kinerja: " + idRekin));
+
+        identifikasiRepository.delete(identifikasi);
     }
 }

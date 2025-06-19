@@ -1,6 +1,6 @@
 package cc.kertaskerja.manrisk_fraud.service.analisa;
 
-import cc.kertaskerja.manrisk_fraud.dto.analisa.AnalisaDTO;
+import cc.kertaskerja.manrisk_fraud.dto.AnalisaDTO;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -9,7 +9,11 @@ import java.util.List;
 public interface AnalisaService {
     List<AnalisaDTO> findAllAnalisa(String nip, String tahun);
 
-    AnalisaDTO findOneAnalisa(String idManrisk);
+    AnalisaDTO findOneAnalisa(String idRekin);
 
     AnalisaDTO saveAnalisa(AnalisaDTO analisaDTO);
+
+    AnalisaDTO updateAnalisa(String idRekin, AnalisaDTO analisaDTO);
+
+    void deleteAnalisa(String idRekin);
 }

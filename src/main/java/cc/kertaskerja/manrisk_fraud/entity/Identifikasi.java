@@ -16,11 +16,11 @@ import lombok.*;
 public class Identifikasi extends BaseAuditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
 
     @Column(name = "id_rekin")
     private String idRekin;
-
 
     @Column(name = "nama_risiko")
     private String namaRisiko;
