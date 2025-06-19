@@ -8,6 +8,8 @@ CREATE TABLE IF NOT EXISTS analisa (
     akibat VARCHAR(255) NOT NULL,
     skala_dampak INTEGER,
     skala_kemungkinan INTEGER,
+                                       tingkat_risiko INTEGER,
+                                       level_risiko VARCHAR(255),
     status VARCHAR(50),
     keterangan VARCHAR(100),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

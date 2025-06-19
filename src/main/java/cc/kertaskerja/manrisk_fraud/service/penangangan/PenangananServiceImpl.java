@@ -2,6 +2,7 @@ package cc.kertaskerja.manrisk_fraud.service.penangangan;
 
 import cc.kertaskerja.manrisk_fraud.dto.PenangananDTO;
 import cc.kertaskerja.manrisk_fraud.entity.Penangangan;
+import cc.kertaskerja.manrisk_fraud.enums.StatusEnum;
 import cc.kertaskerja.manrisk_fraud.exception.ResourceNotFoundException;
 import cc.kertaskerja.manrisk_fraud.repository.PenangananRepository;
 import cc.kertaskerja.manrisk_fraud.service.global.RencanaKinerjaService;
@@ -14,7 +15,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 public class PenangananServiceImpl implements PenangananService {
@@ -50,7 +50,7 @@ public class PenangananServiceImpl implements PenangananService {
                 .biaya_perlakuan_risiko(penanganan.getBiayaPerlakuanRisiko())
                 .target_waktu(penanganan.getTargetWaktu())
                 .pic(penanganan.getPic())
-                .status(penanganan.getStatus())
+                .status(penanganan.getStatus() != null ? penanganan.getStatus().name() : null)
                 .keterangan(penanganan.getKeterangan())
                 .created_at(penanganan.getCreatedAt())
                 .updated_at(penanganan.getUpdatedAt())
@@ -178,10 +178,8 @@ public class PenangananServiceImpl implements PenangananService {
                 .biayaPerlakuanRisiko(penangananDTO.getBiaya_perlakuan_risiko())
                 .targetWaktu(penangananDTO.getTarget_waktu())
                 .pic(penangananDTO.getPic())
-                .status(penangananDTO.getStatus())
-                .keterangan(penangananDTO.getKeterangan())
+                .status(StatusEnum.PENDING)
                 .build();
-
 
         Penangangan saved = penangananRepository.save(penanganan);
 
@@ -207,8 +205,6 @@ public class PenangananServiceImpl implements PenangananService {
         penangangan.setBiayaPerlakuanRisiko(penangananDTO.getBiaya_perlakuan_risiko());
         penangangan.setTargetWaktu(penangananDTO.getTarget_waktu());
         penangangan.setPic(penangananDTO.getPic());
-        penangangan.setStatus(penangananDTO.getStatus());
-        penangangan.setKeterangan(penangananDTO.getKeterangan());
 
         Penangangan updated = penangananRepository.save(penangangan);
         JsonNode rkNode = objectMapper.convertValue(rekinDetail, JsonNode.class);
@@ -222,20 +218,26 @@ public class PenangananServiceImpl implements PenangananService {
         Penangangan entity = penangananRepository.findOneByIdRekin(idRekin)
                 .orElseThrow(() -> new ResourceNotFoundException("Data penanganan not found for id_rencana_kinerja: " + idRekin));
 
-        entity.setStatus(updateDTO.getStatus());
+        try {
+            StatusEnum statusEnum = StatusEnum.valueOf(updateDTO.getStatus().toUpperCase());
+            entity.setStatus(statusEnum);
+        } catch (IllegalArgumentException e) {
+            throw new ResourceNotFoundException("Status tidak valid: " + updateDTO.getStatus());
+        }
+
         entity.setKeterangan(updateDTO.getKeterangan());
 
         Penangangan updated = penangananRepository.save(entity);
 
-        // Optional: get rencana_kinerja data if you want to populate full DTO
         Map<String, Object> rekinDetail = rencanaKinerjaService.getDetailRencanaKinerja(idRekin);
         Object rkObj = rekinDetail.get("rencana_kinerja");
 
-        if (rkObj instanceof Map == false) {
+        if (!(rkObj instanceof Map)) {
             throw new ResourceNotFoundException("Rencana kinerja not found for id_rencana_kinerja: " + idRekin);
         }
 
         JsonNode rkNode = objectMapper.convertValue(rkObj, JsonNode.class);
+
         return buildDTOFromRkAndPenanganan(rkNode, updated);
     }
 

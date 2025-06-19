@@ -1,16 +1,15 @@
 package cc.kertaskerja.manrisk_fraud.entity;
 
 import cc.kertaskerja.manrisk_fraud.common.BaseAuditable;
+import cc.kertaskerja.manrisk_fraud.enums.StatusEnum;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.persistence.*;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
-@EntityListeners(AuditingEntityListener.class)
+@EntityListeners(org.springframework.data.jpa.domain.support.AuditingEntityListener.class)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Table(name = "penanganan")
 public class Penangangan extends BaseAuditable {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -37,19 +36,19 @@ public class Penangangan extends BaseAuditable {
     @Column(name = "pic")
     private String pic;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status")
-    private String status;
+    private StatusEnum status;
 
     @Column(name = "keterangan")
     private String keterangan;
 
-    // Default constructor
+    // === Constructors ===
     public Penangangan() {}
 
-    // All-args constructor
     public Penangangan(String idRekin, String existingControl, String jenisPerlakuanRisiko,
                        String rencanaPerlakuanRisiko, String biayaPerlakuanRisiko,
-                       String targetWaktu, String pic, String status, String keterangan) {
+                       String targetWaktu, String pic, StatusEnum status, String keterangan) {
         this.idRekin = idRekin;
         this.existingControl = existingControl;
         this.jenisPerlakuanRisiko = jenisPerlakuanRisiko;
@@ -61,7 +60,7 @@ public class Penangangan extends BaseAuditable {
         this.keterangan = keterangan;
     }
 
-    // Getters and Setters
+    // === Getters and Setters ===
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
@@ -86,13 +85,13 @@ public class Penangangan extends BaseAuditable {
     public String getPic() { return pic; }
     public void setPic(String pic) { this.pic = pic; }
 
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
+    public StatusEnum getStatus() { return status; }
+    public void setStatus(StatusEnum status) { this.status = status; }
 
     public String getKeterangan() { return keterangan; }
     public void setKeterangan(String keterangan) { this.keterangan = keterangan; }
 
-    // Manual Builder Pattern
+    // === Builder ===
     public static Builder builder() {
         return new Builder();
     }
@@ -105,7 +104,7 @@ public class Penangangan extends BaseAuditable {
         private String biayaPerlakuanRisiko;
         private String targetWaktu;
         private String pic;
-        private String status;
+        private StatusEnum status;
         private String keterangan;
 
         public Builder idRekin(String idRekin) {
@@ -143,7 +142,7 @@ public class Penangangan extends BaseAuditable {
             return this;
         }
 
-        public Builder status(String status) {
+        public Builder status(StatusEnum status) {
             this.status = status;
             return this;
         }
@@ -168,6 +167,7 @@ public class Penangangan extends BaseAuditable {
         }
     }
 
+    // === toString ===
     @Override
     public String toString() {
         return "Penangangan{" +
@@ -179,10 +179,10 @@ public class Penangangan extends BaseAuditable {
                 ", biayaPerlakuanRisiko='" + biayaPerlakuanRisiko + '\'' +
                 ", targetWaktu='" + targetWaktu + '\'' +
                 ", pic='" + pic + '\'' +
-                ", status='" + status + '\'' +
+                ", status=" + status +
                 ", keterangan='" + keterangan + '\'' +
-                ", createdAt=" + createdAt +
-                ", updatedAt=" + updatedAt +
+                ", createdAt=" + getCreatedAt() +
+                ", updatedAt=" + getUpdatedAt() +
                 '}';
     }
 }

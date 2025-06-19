@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class AnalisaDTO {
+public class PemantauanDTO {
     private Long id;
 
     @NotBlank(message = "Wajib memasukkan ID Rencana Kinerja dan tidak boleh kosong!")
@@ -30,16 +30,25 @@ public class AnalisaDTO {
     private String status_rencana_kinerja;
     private String pegawai_id;
     private String nama_pegawai;
-    private AnalisaDTO.OperasionalDaerah operasional_daerah;
+    private OperasionalDaerah operasional_daerah;
 
-    @NotBlank(message = "Nama risiko tidak boleh kosong!")
-    private String nama_risiko;
+    @NotBlank(message = "Risiko kecurangan tidak boleh kosong!")
+    private String risiko_kecurangan;
 
-    @NotBlank(message = "Kolom penyebab tidak boleh kosong!")
-    private String penyebab;
+    @NotBlank(message = "Harap isi deskripsi kegiatan pengendalian")
+    private String deskripsi_kegiatan_pengendalian;
 
-    @NotBlank(message = "Kolom akbiat tidak boleh kosong!")
-    private String akibat;
+    @NotBlank(message = "Harap isi penanggung jawab")
+    private String pic;
+
+    @NotBlank(message = "Rencana waktu kegiatan tidak boleh koson!")
+    private String rencana_waktu_pelaksanaan;
+
+    @NotBlank(message = "Realisasi waktu pelaksanaan tidak boleh kosong!")
+    private String realisasi_waktu_pelaksanaan;
+
+    @NotBlank(message = "Progres tindak lanjut tidak boleh kosong!")
+    private String progres_tindak_lanjut;
 
     @NotNull(message = "Skala dampak tidak boleh kosong!")
     @Min(value = 1, message = "Skala dampak minimal 1")
@@ -55,6 +64,13 @@ public class AnalisaDTO {
 
     private String level_risiko;
 
+    @NotBlank(message = "Bukti pelaksanaan tidak boleh kosong!")
+    private String bukti_pelaksanaan;
+
+    @NotBlank(message = "Harap isi kendala!")
+    private String kendala;
+
+    private String catatan;
     private String status;
     private String keterangan;
 
@@ -71,14 +87,5 @@ public class AnalisaDTO {
     public static class OperasionalDaerah {
         private String kode_opd;
         private String nama_opd;
-    }
-
-    @Getter
-    @Setter
-    public static class UpdateStatusDTO {
-        @NotBlank(message = "Status tidak boleh kosong")
-        private String status;
-
-        private String keterangan;
     }
 }

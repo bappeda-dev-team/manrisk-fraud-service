@@ -71,10 +71,9 @@ public class PenangananController {
 
     @PutMapping("/{idRekin}")
     @Operation(summary = "Update data Penanganan berdasarkan ID Rencana Kinerja")
-    public ResponseEntity<ApiResponse<?>> updatePenanganan(
-            @PathVariable String idRekin,
-            @Valid @RequestBody PenangananDTO penangananDto,
-            BindingResult bindingResult) {
+    public ResponseEntity<ApiResponse<?>> updatePenanganan(@PathVariable String idRekin,
+                                                           @Valid @RequestBody PenangananDTO penangananDto,
+                                                           BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             List<String> errorMessages = bindingResult.getFieldErrors().stream()
                     .map(error -> error.getField() + ": " + error.getDefaultMessage())
@@ -98,10 +97,9 @@ public class PenangananController {
 
     @PatchMapping("/{idRekin}")
     @Operation(summary = "Update status Penanganan berdasarkan ID Rencana Kinerja")
-    public ResponseEntity<ApiResponse<?>> updateStatusPenanganan(
-            @PathVariable String idRekin,
-            @Valid @RequestBody PenangananDTO.UpdateStatusDTO updateDto,
-            BindingResult bindingResult) {
+    public ResponseEntity<ApiResponse<?>> updateStatusPenanganan(@PathVariable String idRekin,
+                                                                 @Valid @RequestBody PenangananDTO.UpdateStatusDTO updateDto,
+                                                                 BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             List<String> errorMessages = bindingResult.getFieldErrors().stream()
                     .map(error -> error.getField() + ": " + error.getDefaultMessage())

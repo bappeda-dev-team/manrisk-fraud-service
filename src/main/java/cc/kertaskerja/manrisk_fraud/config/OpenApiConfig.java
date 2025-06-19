@@ -13,9 +13,9 @@ public class OpenApiConfig {
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
                 .info(new Info()
-                        .title("Manajemen Risiko API")
+                        .title("Manajemen Risiko Fraud API Service")
                         .version("1.0.0")
-                        .description("API untuk manajemen risiko")
+                        .description("API untuk Manajemen Risiko Fraud")
                         .contact(new Contact()
                                 .name("API Support")
                                 .email("support@example.com")));

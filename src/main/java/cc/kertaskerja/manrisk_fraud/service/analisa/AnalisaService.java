@@ -15,5 +15,7 @@ public interface AnalisaService {
 
     AnalisaDTO updateAnalisa(String idRekin, AnalisaDTO analisaDTO);
 
+    AnalisaDTO updateStatusAnalisa(String idRekin, AnalisaDTO.UpdateStatusDTO updateDTO);
+
     void deleteAnalisa(String idRekin);
 }

@@ -70,7 +70,6 @@ public class PenangananDTO {
     @Getter
     @Setter
     public static class UpdateStatusDTO {
-
         @NotBlank(message = "Status tidak boleh kosong")
         private String status;
 

@@ -1,10 +1,8 @@
 package cc.kertaskerja.manrisk_fraud.entity;
 
 import cc.kertaskerja.manrisk_fraud.common.BaseAuditable;
+import cc.kertaskerja.manrisk_fraud.enums.StatusEnum;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 @Entity
@@ -40,8 +38,15 @@ public class Analisa extends BaseAuditable {
     @Column(name = "skala_kemungkinan")
     private int skalaKemungkinan;
 
+    @Column(name = "tingkat_risiko")
+    private int tingkatRisiko;
+
+    @Column(name = "level_risiko")
+    private String levelRisiko;
+
+    @Enumerated(EnumType.STRING)
     @Column(name = "status")
-    private String status;
+    private StatusEnum status;
 
     @Column(name = "keterangan")
     private String keterangan;
