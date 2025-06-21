@@ -25,6 +25,9 @@ public class Pemantauan extends BaseAuditable {
     @Column(name = "id_rekin")
     private String idRekin;
 
+    @Column(name = "pemilik_risiko")
+    private String pemilikRisiko;
+
     @Column(name = "risiko_kecurangan")
     private String risikoKecurangan;
 
@@ -43,20 +46,8 @@ public class Pemantauan extends BaseAuditable {
     @Column(name = "progres_tindak_lanjut")
     private String progresTindakLanjut;
 
-    @Column(name = "skala_dampak")
-    private int skalaDampak;
-
-    @Column(name = "skala_kemungkinan")
-    private int skalaKemungkinan;
-
-    @Column(name = "tingkat_risiko")
-    private int tingkatRisiko;
-
-    @Column(name = "level_risiko")
-    private String levelRisiko;
-
-    @Column(name = "bukti_pelaksanaan")
-    private String buktiPelaksanaan;
+    @Column(name = "bukti_pelaksanaan_tindak_lanjut")
+    private String buktiPelaksanaanTidakLanjut;
 
     @Column(name = "kendala")
     private String kendala;

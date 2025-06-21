@@ -32,6 +32,9 @@ public class PemantauanDTO {
     private String nama_pegawai;
     private OperasionalDaerah operasional_daerah;
 
+    @NotBlank(message = "Harap mengisi pemilik risiko")
+    private String pemilik_risiko;
+
     @NotBlank(message = "Risiko kecurangan tidak boleh kosong!")
     private String risiko_kecurangan;
 
@@ -50,22 +53,8 @@ public class PemantauanDTO {
     @NotBlank(message = "Progres tindak lanjut tidak boleh kosong!")
     private String progres_tindak_lanjut;
 
-    @NotNull(message = "Skala dampak tidak boleh kosong!")
-    @Min(value = 1, message = "Skala dampak minimal 1")
-    @Max(value = 5, message = "Skala dampak maksimal 5")
-    private int skala_dampak;
-
-    @NotNull(message = "Skala kemungkinan tidak boleh kosong!")
-    @Min(value = 1, message = "Skala kemungkinan minimal 1")
-    @Max(value = 5, message = "Skala kemungkinan maksimal 5")
-    private int skala_kemungkinan;
-
-    private int tingkat_risiko;
-
-    private String level_risiko;
-
     @NotBlank(message = "Bukti pelaksanaan tidak boleh kosong!")
-    private String bukti_pelaksanaan;
+    private String bukti_pelaksanaan_tindak_lanjut;
 
     @NotBlank(message = "Harap isi kendala!")
     private String kendala;
@@ -87,5 +76,14 @@ public class PemantauanDTO {
     public static class OperasionalDaerah {
         private String kode_opd;
         private String nama_opd;
+    }
+
+    @Getter
+    @Setter
+    public static class UpdateStatusDTO {
+        @NotBlank(message = "Status tidak boleh kosong")
+        private String status;
+
+        private String keterangan;
     }
 }

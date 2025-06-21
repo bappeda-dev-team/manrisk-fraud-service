@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -40,17 +41,14 @@ public class PemantauanServiceImpl implements PemantauanService {
                         .kode_opd(rk.path("operasional_daerah").path("kode_opd").asText())
                         .nama_opd(rk.path("operasional_daerah").path("nama_opd").asText())
                         .build())
+                .pemilik_risiko(p.getPemilikRisiko())
                 .risiko_kecurangan(p.getRisikoKecurangan())
                 .deskripsi_kegiatan_pengendalian(p.getDeskripsiKegiatanPengendalian())
                 .pic(p.getPic())
                 .rencana_waktu_pelaksanaan(p.getRencanaWaktuPelaksanaan())
                 .realisasi_waktu_pelaksanaan(p.getRealisasiWaktuPelaksanaan())
                 .progres_tindak_lanjut(p.getProgresTindakLanjut())
-                .skala_dampak(p.getSkalaDampak())
-                .skala_kemungkinan(p.getSkalaKemungkinan())
-                .tingkat_risiko(p.getTingkatRisiko())
-                .level_risiko(p.getLevelRisiko())
-                .bukti_pelaksanaan(p.getBuktiPelaksanaan())
+                .bukti_pelaksanaan_tindak_lanjut(p.getBuktiPelaksanaanTidakLanjut())
                 .kendala(p.getKendala())
                 .catatan(p.getCatatan())
                 .status(p.getStatus() != null ? p.getStatus().name() : null)
@@ -76,17 +74,14 @@ public class PemantauanServiceImpl implements PemantauanService {
                         .kode_opd(rk.path("operasional_daerah").path("kode_opd").asText())
                         .nama_opd(rk.path("operasional_daerah").path("nama_opd").asText())
                         .build())
+                .pemilik_risiko("")
                 .risiko_kecurangan("")
                 .deskripsi_kegiatan_pengendalian("")
                 .pic("")
                 .rencana_waktu_pelaksanaan("")
                 .realisasi_waktu_pelaksanaan("")
                 .progres_tindak_lanjut("")
-                .skala_dampak(0)
-                .skala_kemungkinan(0)
-                .tingkat_risiko(0)
-                .level_risiko("")
-                .bukti_pelaksanaan("")
+                .bukti_pelaksanaan_tindak_lanjut("")
                 .kendala("")
                 .catatan("")
                 .status("")
@@ -134,6 +129,23 @@ public class PemantauanServiceImpl implements PemantauanService {
     }
 
     @Override
+    public PemantauanDTO findOnePemantauan(String idRekin) {
+        Map<String, Object> rekinDetail = rencanaKinerjaService.getDetailRencanaKinerja(idRekin);
+        Object rkObj = rekinDetail.get("rencana_kinerja");
+
+        if (rkObj == null) {
+            throw new ResourceNotFoundException("Data rencana kinerja is not found");
+        }
+
+        JsonNode rkNode = objectMapper.convertValue(rkObj, JsonNode.class);
+
+        return pemantauanRepository.findOneByIdRekin(idRekin)
+                .map(p -> buildDTOFFromRkAndPemantauan(rkNode, p))
+                .orElseGet(() -> buildDTOFFromRkOnly(rkNode));
+    }
+
+    @Override
+    @Transactional
     public PemantauanDTO savePemantauan(PemantauanDTO pemantauanDTO) {
         String idRekin = pemantauanDTO.getId_rencana_kinerja();
 
@@ -154,32 +166,16 @@ public class PemantauanServiceImpl implements PemantauanService {
             throw new ResourceNotFoundException("Data identifikasi already exists for id_rencana_kinerja: " + idRekin);
         }
 
-        int tingkatRisiko = pemantauanDTO.getSkala_dampak() * pemantauanDTO.getSkala_kemungkinan();
-
-        String levelRisiko;
-        if (tingkatRisiko >= 1 && tingkatRisiko <= 4) {
-            levelRisiko = "Rendah";
-        } else if (tingkatRisiko >= 5 && tingkatRisiko <= 12) {
-            levelRisiko = "Menengah";
-        } else if (tingkatRisiko >= 15 && tingkatRisiko <= 25) {
-            levelRisiko = "Tinggi";
-        } else {
-            levelRisiko = "-";
-        }
-
         Pemantauan pemantauan = Pemantauan.builder()
                 .idRekin(idRekin)
+                .pemilikRisiko(pemantauanDTO.getPemilik_risiko())
                 .risikoKecurangan(pemantauanDTO.getRisiko_kecurangan())
                 .deskripsiKegiatanPengendalian(pemantauanDTO.getDeskripsi_kegiatan_pengendalian())
                 .pic(pemantauanDTO.getPic())
                 .rencanaWaktuPelaksanaan(pemantauanDTO.getRencana_waktu_pelaksanaan())
                 .realisasiWaktuPelaksanaan(pemantauanDTO.getRealisasi_waktu_pelaksanaan())
                 .progresTindakLanjut(pemantauanDTO.getProgres_tindak_lanjut())
-                .skalaDampak(pemantauanDTO.getSkala_dampak())
-                .skalaKemungkinan(pemantauanDTO.getSkala_kemungkinan())
-                .tingkatRisiko(tingkatRisiko)
-                .levelRisiko(levelRisiko)
-                .buktiPelaksanaan(pemantauanDTO.getBukti_pelaksanaan())
+                .buktiPelaksanaanTidakLanjut(pemantauanDTO.getBukti_pelaksanaan_tindak_lanjut())
                 .kendala(pemantauanDTO.getKendala())
                 .catatan(pemantauanDTO.getCatatan())
                 .status(StatusEnum.PENDING)
@@ -188,5 +184,71 @@ public class PemantauanServiceImpl implements PemantauanService {
         Pemantauan saved = pemantauanRepository.save(pemantauan);
 
         return buildDTOFFromRkAndPemantauan(rkNode, saved);
+    }
+
+    @Override
+    @Transactional
+    public PemantauanDTO updatePemantauan(String idRekin, PemantauanDTO pemantauanDTO) {
+        Map<String, Object> rekinDetail = rencanaKinerjaService.getDetailRencanaKinerja(idRekin);
+        Object rkObj = rekinDetail.get("rencana_kinerja");
+
+        if (!(rkObj instanceof Map)) {
+            throw new ResourceNotFoundException("Data rencana kinerja is not found");
+        }
+
+        Pemantauan pemantauan = pemantauanRepository.findOneByIdRekin(idRekin)
+                .orElseThrow(() -> new ResourceNotFoundException("Data identifikasi not found for id_rencana_kinerja: " + idRekin));
+
+        pemantauan.setPemilikRisiko(pemantauanDTO.getPemilik_risiko());
+        pemantauan.setRisikoKecurangan(pemantauanDTO.getRisiko_kecurangan());
+        pemantauan.setDeskripsiKegiatanPengendalian(pemantauanDTO.getDeskripsi_kegiatan_pengendalian());
+        pemantauan.setPic(pemantauanDTO.getPic());
+        pemantauan.setRencanaWaktuPelaksanaan(pemantauanDTO.getRencana_waktu_pelaksanaan());
+        pemantauan.setRealisasiWaktuPelaksanaan(pemantauanDTO.getRealisasi_waktu_pelaksanaan());
+        pemantauan.setProgresTindakLanjut(pemantauanDTO.getProgres_tindak_lanjut());
+        pemantauan.setBuktiPelaksanaanTidakLanjut(pemantauanDTO.getBukti_pelaksanaan_tindak_lanjut());
+        pemantauan.setKendala(pemantauanDTO.getKendala());
+        pemantauan.setCatatan(pemantauanDTO.getCatatan());
+
+        Pemantauan updated = pemantauanRepository.save(pemantauan);
+        JsonNode rkNode = objectMapper.convertValue(rkObj, JsonNode.class);
+
+        return buildDTOFFromRkAndPemantauan(rkNode, updated) ;
+    }
+
+    @Override
+    @Transactional
+    public PemantauanDTO updateStatusPemantauan(String idRekin, PemantauanDTO.UpdateStatusDTO updateDTO) {
+        Pemantauan entity = pemantauanRepository.findOneByIdRekin(idRekin)
+                .orElseThrow(() -> new ResourceNotFoundException("Data identifikasi not found for id_rencana_kinerja: " + idRekin));
+
+        try {
+            StatusEnum status = StatusEnum.valueOf(updateDTO.getStatus());
+            entity.setStatus(status);
+        } catch (IllegalArgumentException e) {
+            throw new ResourceNotFoundException("Invalid status value: " + updateDTO.getStatus());
+        }
+
+        entity.setKendala(updateDTO.getKeterangan());
+
+        Pemantauan updated = pemantauanRepository.save(entity);
+
+        Map<String, Object> rekinDetail = rencanaKinerjaService.getDetailRencanaKinerja(idRekin);
+        Object rkObj = rekinDetail.get("rencana_kinerja");
+
+        if (!(rkObj instanceof Map)) {
+            throw new ResourceNotFoundException("Data rencana kinerja is not found");
+        }
+        JsonNode rkNode = objectMapper.convertValue(rkObj, JsonNode.class);
+
+        return buildDTOFFromRkAndPemantauan(rkNode, updated);
+    }
+
+    @Override
+    public void deletePemantauan(String idRekin) {
+        Pemantauan pemantauan = pemantauanRepository.findOneByIdRekin(idRekin)
+                .orElseThrow(() -> new ResourceNotFoundException("Data identifikasi not found for id_rencana_kinerja: " + idRekin));
+
+        pemantauanRepository.delete(pemantauan);
     }
 }
