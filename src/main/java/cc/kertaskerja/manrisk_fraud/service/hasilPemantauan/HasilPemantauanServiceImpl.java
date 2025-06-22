@@ -10,6 +10,7 @@ import cc.kertaskerja.manrisk_fraud.service.global.RencanaKinerjaService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.hibernate6.Hibernate6Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -29,11 +30,15 @@ public class HasilPemantauanServiceImpl implements HasilPemantauanService {
     private final HasilPemantauanRepository hpRepository;
     private final ObjectMapper objectMapper = new ObjectMapper()
             .registerModule(new JavaTimeModule())
+            .registerModule(new Hibernate6Module())
             .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+
     private final RencanaKinerjaService rencanaKinerjaService;
 
 
     private HasilPemantauanDTO buildDTOFFromHasilPemantauan(JsonNode rk, JsonNode pemantauan, HasilPemantauan h) {
+        System.out.println("pemantauan JSON: " + pemantauan.toPrettyString());
+
         return HasilPemantauanDTO.builder()
                 .id_rencana_kinerja(rk.path("id_rencana_kinerja").asText())
                 .id_pohon(rk.path("id_pohon").asInt())
@@ -48,14 +53,14 @@ public class HasilPemantauanServiceImpl implements HasilPemantauanService {
                         .kode_opd(rk.path("operasional_daerah").path("kode_opd").asText())
                         .nama_opd(rk.path("operasional_daerah").path("nama_opd").asText())
                         .build())
-                .pemilik_risiko(pemantauan.path("pemilik_risiko").asText())
-                .risiko_kecurangan(pemantauan.path("risiko_kecurangan").asText())
-                .deskripsi_kegiatan_pengendalian(pemantauan.path("deskripsi_kegiatan_pengendalian").asText())
+                .pemilik_risiko(pemantauan.path("pemilikRisiko").asText())
+                .risiko_kecurangan(pemantauan.path("risikoKecurangan").asText())
+                .deskripsi_kegiatan_pengendalian(pemantauan.path("deskripsiKegiatanPengendalian").asText())
                 .pic(pemantauan.path("pic").asText())
-                .rencana_waktu_pelaksanaan(pemantauan.path("rencana_waktu_pelaksanaan").asText())
-                .realisasi_waktu_pelaksanaan(pemantauan.path("realisasi_waktu_pelaksanaan").asText())
-                .progres_tindak_lanjut(pemantauan.path("progres_tindak_lanjut").asText())
-                .bukti_pelaksanaan_tindak_lanjut(pemantauan.path("bukti_pelaksanaan_tindak_lanjut").asText())
+                .rencana_waktu_pelaksanaan(pemantauan.path("rencanaWaktuPelaksanaan").asText())
+                .realisasi_waktu_pelaksanaan(pemantauan.path("realisasiWaktuPelaksanaan").asText())
+                .progres_tindak_lanjut(pemantauan.path("progresTindakLanjut").asText())
+                .bukti_pelaksanaan_tindak_lanjut(pemantauan.path("buktiPelaksanaanTidakLanjut").asText())
                 .kendala(pemantauan.path("kendala").asText())
                 .skala_dampak(h.getSkalaDampak())
                 .skala_kemungkinan(h.getSkalaKemungkinan())
@@ -83,14 +88,14 @@ public class HasilPemantauanServiceImpl implements HasilPemantauanService {
                         .kode_opd(rk.path("operasional_daerah").path("kode_opd").asText())
                         .nama_opd(rk.path("operasional_daerah").path("nama_opd").asText())
                         .build())
-                .pemilik_risiko(pemantauan.path("pemilik_risiko").asText())
-                .risiko_kecurangan(pemantauan.path("risiko_kecurangan").asText())
-                .deskripsi_kegiatan_pengendalian(pemantauan.path("deskripsi_kegiatan_pengendalian").asText())
+                .pemilik_risiko(pemantauan.path("pemilikRisiko").asText())
+                .risiko_kecurangan(pemantauan.path("risikoKecurangan").asText())
+                .deskripsi_kegiatan_pengendalian(pemantauan.path("deskripsiKegiatanPengendalian").asText())
                 .pic(pemantauan.path("pic").asText())
-                .rencana_waktu_pelaksanaan(pemantauan.path("rencana_waktu_pelaksanaan").asText())
-                .realisasi_waktu_pelaksanaan(pemantauan.path("realisasi_waktu_pelaksanaan").asText())
-                .progres_tindak_lanjut(pemantauan.path("progres_tindak_lanjut").asText())
-                .bukti_pelaksanaan_tindak_lanjut(pemantauan.path("bukti_pelaksanaan_tindak_lanjut").asText())
+                .rencana_waktu_pelaksanaan(pemantauan.path("rencanaWaktuPelaksanaan").asText())
+                .realisasi_waktu_pelaksanaan(pemantauan.path("realisasiWaktuPelaksanaan").asText())
+                .progres_tindak_lanjut(pemantauan.path("progresTindakLanjut").asText())
+                .bukti_pelaksanaan_tindak_lanjut(pemantauan.path("buktiPelaksanaanTidakLanjut").asText())
                 .kendala(pemantauan.path("kendala").asText())
                 .skala_dampak(0)
                 .skala_kemungkinan(0)
@@ -112,61 +117,49 @@ public class HasilPemantauanServiceImpl implements HasilPemantauanService {
 
         List<Map<String, Object>> rekinList = (List<Map<String, Object>>) rkObj;
         List<Pemantauan> pemantauanList = pemantauanRepository.findAll();
-
-        Map<String, List<Pemantauan>> pemantauanMap = new HashMap<>();
-        for (int i = 0; i < pemantauanList.size(); i++) {
-            Pemantauan p = pemantauanList.get(i);
-            String idRekin = p.getIdRekin();
-
-            if (!pemantauanMap.containsKey(idRekin)) {
-                pemantauanMap.put(idRekin, new ArrayList<>());
-            }
-
-            pemantauanMap.get(idRekin).add(p);
-        }
-
         List<HasilPemantauan> hasilPemantauanList = hpRepository.findAll();
 
-        Map<String, List<HasilPemantauan>> hasilPemantauanMap = new HashMap<>();
-        for (int i = 0; i < hasilPemantauanList.size(); i++) {
-            HasilPemantauan hp = hasilPemantauanList.get(i);
-            String idRekin = hp.getIdRekin();
-
-            if (!hasilPemantauanMap.containsKey(idRekin)) {
-                hasilPemantauanMap.put(idRekin, new ArrayList<>());
-            }
-
-            hasilPemantauanMap.get(idRekin).add(hp);
+        // Group Pemantauan by idRekin
+        Map<String, List<Pemantauan>> pemantauanMap = new HashMap<>();
+        for (Pemantauan p : pemantauanList) {
+            pemantauanMap.computeIfAbsent(p.getIdRekin(), k -> new ArrayList<>()).add(p);
         }
 
-        List<HasilPemantauanDTO> hasilPemantauanDTOList = new ArrayList<>();
-
-        Pemantauan tempPemantauan = null;
-        HasilPemantauan tempHasilPemantauan = null;
+        // Group HasilPemantauan by idRekin
+        Map<String, List<HasilPemantauan>> hasilPemantauanMap = new HashMap<>();
+        for (HasilPemantauan h : hasilPemantauanList) {
+            hasilPemantauanMap.computeIfAbsent(h.getIdRekin(), k -> new ArrayList<>()).add(h);
+        }
 
         List<HasilPemantauanDTO> result = new ArrayList<>();
 
-        for (int i = 0; i < rekinList.size(); i++) {
-            Map<String, Object> rekinDetail = rekinList.get(i);
+        for (Map<String, Object> rekinDetail : rekinList) {
             JsonNode rkNode = objectMapper.convertValue(rekinDetail, JsonNode.class);
             String idRekin = rkNode.path("id_rencana_kinerja").asText();
 
-            List<Pemantauan> pMap = pemantauanMap.get(idRekin);
-            if (pMap != null && pMap.size() > 0) {
-                for (int j = 0; j < pMap.size(); j++) {
-                    tempPemantauan = pMap.get(j);
+            List<Pemantauan> pemantauanEntries = pemantauanMap.getOrDefault(idRekin, new ArrayList<>());
+
+            // Only process if Pemantauan exists
+            if (!pemantauanEntries.isEmpty()) {
+                List<HasilPemantauan> hasilEntries = hasilPemantauanMap.getOrDefault(idRekin, new ArrayList<>());
+
+                if (!hasilEntries.isEmpty()) {
+                    for (Pemantauan p : pemantauanEntries) {
+                        for (HasilPemantauan h : hasilEntries) {
+                            result.add(buildDTOFFromHasilPemantauan(rkNode, objectMapper.convertValue(p, JsonNode.class), h));
+                        }
+                    }
+                } else {
+                    for (Pemantauan p : pemantauanEntries) {
+                        result.add(buildDTOFFromRkOnly(rkNode, objectMapper.convertValue(p, JsonNode.class)));
+                    }
                 }
             }
 
-            List<HasilPemantauan> hpMap = hasilPemantauanMap.get(idRekin);
-            if (hpMap != null && hpMap.size() > 0) {
-                for (int j = 0; j < hpMap.size(); j++) {
-                    tempHasilPemantauan = hpMap.get(j);
-                }
-            }
+            // If there's no Pemantauan, skip. (Do not add anything)
         }
 
-        return List.of();
+        return result;
     }
 
     @Override

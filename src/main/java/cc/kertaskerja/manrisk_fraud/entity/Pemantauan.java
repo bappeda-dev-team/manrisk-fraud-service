@@ -2,13 +2,16 @@ package cc.kertaskerja.manrisk_fraud.entity;
 
 import cc.kertaskerja.manrisk_fraud.common.BaseAuditable;
 import cc.kertaskerja.manrisk_fraud.enums.StatusEnum;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
 @EntityListeners(org.springframework.data.jpa.domain.support.AuditingEntityListener.class)
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Builder
 @Table(name = "pemantauan")
 public class Pemantauan extends BaseAuditable {
@@ -53,8 +56,8 @@ public class Pemantauan extends BaseAuditable {
     @Column(name = "keterangan")
     private String keterangan;
 
-    @ToString.Exclude
-    @OneToOne(mappedBy = "pemantauan", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    @OneToOne(mappedBy = "pemantauan", cascade = CascadeType.ALL, fetch = FetchType.LAZY, optional = false)
+    @JsonManagedReference
     private HasilPemantauan hasilPemantauan;
 
     public Pemantauan() {}
