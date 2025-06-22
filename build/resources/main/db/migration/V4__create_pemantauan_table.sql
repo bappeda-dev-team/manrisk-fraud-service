@@ -1,8 +1,8 @@
 DROP TABLE IF EXISTS pemantauan;
 
 CREATE TABLE pemantauan (
-                            id BIGSERIAL PRIMARY KEY,
-                            id_rekin VARCHAR(100) UNIQUE,
+                            id BIGSERIAL,
+                            id_rekin VARCHAR(100) PRIMARY KEY UNIQUE,
                             pemilik_risiko VARCHAR(100) NOT NULL,
                             risiko_kecurangan VARCHAR(255) NOT NULL,
                             deskripsi_kegiatan_pengendalian VARCHAR(255) NOT NULL,

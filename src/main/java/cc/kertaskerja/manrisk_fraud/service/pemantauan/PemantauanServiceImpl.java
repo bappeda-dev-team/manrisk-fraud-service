@@ -27,7 +27,6 @@ public class PemantauanServiceImpl implements PemantauanService {
 
     private PemantauanDTO buildDTOFFromRkAndPemantauan(JsonNode rk, Pemantauan p) {
         return PemantauanDTO.builder()
-                .id(p.getId())
                 .id_rencana_kinerja(rk.path("id_rencana_kinerja").asText())
                 .id_pohon(rk.path("id_pohon").asInt())
                 .nama_pohon(rk.path("nama_pohon").asText())
@@ -60,7 +59,6 @@ public class PemantauanServiceImpl implements PemantauanService {
 
     private PemantauanDTO buildDTOFFromRkOnly(JsonNode rk) {
         return PemantauanDTO.builder()
-                .id(null)
                 .id_rencana_kinerja(rk.path("id_rencana_kinerja").asText())
                 .id_pohon(rk.path("id_pohon").asInt())
                 .nama_pohon(rk.path("nama_pohon").asText())
