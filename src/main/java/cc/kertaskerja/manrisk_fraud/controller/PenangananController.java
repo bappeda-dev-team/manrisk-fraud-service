@@ -44,9 +44,8 @@ public class PenangananController {
 
     @PostMapping
     @Operation(summary = "Simpan data Penanganan baru")
-    public ResponseEntity<ApiResponse<?>> savePenanganan(
-            @Valid @RequestBody PenangananDTO penangananDto,
-            BindingResult bindingResult) {
+    public ResponseEntity<ApiResponse<?>> savePenanganan(@Valid @RequestBody PenangananDTO penangananDto,
+                                                         BindingResult bindingResult) {
 
         if (bindingResult.hasErrors()) {
             List<String> errorMessages = bindingResult.getFieldErrors().stream()
@@ -98,7 +97,7 @@ public class PenangananController {
     @PatchMapping("/{idRekin}")
     @Operation(summary = "Update status Penanganan berdasarkan ID Rencana Kinerja")
     public ResponseEntity<ApiResponse<?>> updateStatusPenanganan(@PathVariable String idRekin,
-                                                                 @Valid @RequestBody PenangananDTO.UpdateStatusDTO updateDto,
+                                                                 @Valid @RequestBody PenangananDTO.UpdateStatusDTO dto,
                                                                  BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             List<String> errorMessages = bindingResult.getFieldErrors().stream()
@@ -116,7 +115,7 @@ public class PenangananController {
             return ResponseEntity.badRequest().body(errorResponse);
         }
 
-        PenangananDTO updated = penangananService.updateStatusPenanganan(idRekin, updateDto);
+        PenangananDTO updated = penangananService.updateStatusPenanganan(idRekin, dto);
 
         return ResponseEntity.ok(ApiResponse.updated(updated));
     }

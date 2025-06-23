@@ -23,7 +23,7 @@ public class PemantauanController {
     private final PemantauanService pemantauanService;
 
     @GetMapping("/get-all-data/{nip}/{tahun}")
-    @Operation(summary = "Ambil semua data Pemantauan berdasarkan NIP dan Tahun")
+    @Operation(summary = "Ambil semua data Pemantauan RTP berdasarkan NIP dan Tahun")
     public ResponseEntity<ApiResponse<List<PemantauanDTO>>> getAllData(@PathVariable String nip,
                                                                        @PathVariable String tahun) {
         List<PemantauanDTO> result = pemantauanService.findAllPemantauan(nip, tahun);
@@ -31,11 +31,19 @@ public class PemantauanController {
         return ResponseEntity.ok(ApiResponse.success(result, "Retrieved " + result.size() + " data successfully"));
     }
 
+    @GetMapping("/get-detail/{idRekin}")
+    @Operation(summary = "Ambil satu data Pemantauan RTP berdasarkan ID Rencana Kinerja")
+    public ResponseEntity<ApiResponse<PemantauanDTO>> getByIdRekin(@PathVariable String idRekin) {
+        PemantauanDTO dto = pemantauanService.findOnePemantauan(idRekin);
+        ApiResponse<PemantauanDTO> response = ApiResponse.success(dto, "Retrieved 1 data successfully");
+
+        return ResponseEntity.ok(response);
+    }
+
     @PostMapping
-    @Operation(summary = "Simpan data Pemantauan baru")
-    public ResponseEntity<ApiResponse<?>> savePemantauan(
-            @Valid @RequestBody PemantauanDTO dto,
-            BindingResult bindingResult) {
+    @Operation(summary = "Simpan data Pemantauan RTP baru")
+    public ResponseEntity<ApiResponse<?>> savePemantauan(@Valid @RequestBody PemantauanDTO dto,
+                                                         BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             List<String> errorMessages = bindingResult.getFieldErrors().stream()
                     .map(error -> error.getField() + ": " + error.getDefaultMessage())
@@ -55,5 +63,65 @@ public class PemantauanController {
         PemantauanDTO result = pemantauanService.savePemantauan(dto);
 
         return ResponseEntity.ok(ApiResponse.success(result, "Saved successfully"));
+    }
+
+    @PutMapping("/{idRekin}")
+    @Operation(summary = "Update data Pemantauan RTP berdasarkan ID Rencana Kinerja")
+    public ResponseEntity<ApiResponse<?>> updatePemantauan(@PathVariable String idRekin,
+                                                           @Valid @RequestBody PemantauanDTO dto,
+                                                           BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            List<String> errorMessages = bindingResult.getFieldErrors().stream()
+                    .map(error -> error.getField() + ": " + error.getDefaultMessage())
+                    .toList();
+
+            ApiResponse<List<String>> errorResponse = ApiResponse.<List<String>>builder()
+                    .success(false)
+                    .statusCode(400)
+                    .message("Validation failed")
+                    .errors(errorMessages)
+                    .timestamp(LocalDateTime.now())
+                    .build();
+
+            return ResponseEntity.badRequest().body(errorResponse);
+        }
+
+        PemantauanDTO result = pemantauanService.updatePemantauan(idRekin, dto);
+
+        return ResponseEntity.ok(ApiResponse.success(result, "Updated successfully"));
+    }
+
+    @PatchMapping("/{idRekin}")
+    @Operation(summary = "Update status Pemantauan RTP berdasarkan ID Rencana Kinerja")
+    public ResponseEntity<ApiResponse<?>> updateStatusPemantauan(@PathVariable String idRekin,
+                                                                 @Valid @RequestBody PemantauanDTO.UpdateStatusDTO dto,
+                                                                 BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            List<String> errorMessages = bindingResult.getFieldErrors().stream()
+                    .map(error -> error.getField() + ": " + error.getDefaultMessage())
+                    .toList();
+
+            ApiResponse<List<String>> errorResponse = ApiResponse.<List<String>>builder()
+                    .success(false)
+                    .statusCode(400)
+                    .message("Validation failed")
+                    .errors(errorMessages)
+                    .timestamp(LocalDateTime.now())
+                    .build();
+
+            return ResponseEntity.badRequest().body(errorResponse);
+        }
+
+        PemantauanDTO updated = pemantauanService.updateStatusPemantauan(idRekin, dto);
+
+        return ResponseEntity.ok(ApiResponse.updated(updated));
+    }
+
+    @DeleteMapping("/{idRekin}")
+    @Operation(summary = "Hapus data Pemantauan RTP berdasarkan ID Rencana Kinerja")
+    public ResponseEntity<ApiResponse<String>> deletePemantauan(@PathVariable String idRekin) {
+        pemantauanService.deletePemantauan(idRekin);
+
+        return ResponseEntity.ok(ApiResponse.success(idRekin, "Deleted successfully"));
     }
 }
