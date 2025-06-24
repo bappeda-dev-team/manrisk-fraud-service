@@ -9,8 +9,9 @@ import java.util.Optional;
 
 public interface AnalisaRepository extends JpaRepository<Analisa, Long> {
 
-    @Query("SELECT a FROM Analisa a WHERE a.idRekin = :idRekin")
+    @Query("SELECT a FROM Analisa a WHERE a.idRencanaKinerja = :idRekin")
     Optional<Analisa> findOneByIdRekin(@Param("idRekin") String idRekin);
 
-    boolean existsByIdRekin(String idRekin);
+    boolean existsByIdRencanaKinerja(String idRekin);
+
 }

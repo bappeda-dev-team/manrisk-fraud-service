@@ -9,8 +9,8 @@ import java.util.Optional;
 
 public interface PemantauanRepository extends JpaRepository<Pemantauan, Long> {
 
-    @Query("SELECT p FROM Pemantauan p WHERE p.idRekin = :idRekin")
+    @Query("SELECT p FROM Pemantauan p WHERE p.idRencanaKinerja = :idRekin")
     Optional<Pemantauan> findOneByIdRekin(@Param("idRekin") String idRekin);
 
-    boolean existsByIdRekin(String idRekin);
+    boolean existsByIdRencanaKinerja(String idRekin);
 }

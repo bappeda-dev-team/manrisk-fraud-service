@@ -122,13 +122,13 @@ public class HasilPemantauanServiceImpl implements HasilPemantauanService {
         // Group Pemantauan by idRekin
         Map<String, List<Pemantauan>> pemantauanMap = new HashMap<>();
         for (Pemantauan p : pemantauanList) {
-            pemantauanMap.computeIfAbsent(p.getIdRekin(), k -> new ArrayList<>()).add(p);
+            pemantauanMap.computeIfAbsent(p.getIdRencanaKinerja(), k -> new ArrayList<>()).add(p);
         }
 
         // Group HasilPemantauan by idRekin
         Map<String, List<HasilPemantauan>> hasilPemantauanMap = new HashMap<>();
         for (HasilPemantauan h : hasilPemantauanList) {
-            hasilPemantauanMap.computeIfAbsent(h.getIdRekin(), k -> new ArrayList<>()).add(h);
+            hasilPemantauanMap.computeIfAbsent(h.getIdRencanaKinerja(), k -> new ArrayList<>()).add(h);
         }
 
         List<HasilPemantauanDTO> result = new ArrayList<>();
@@ -187,7 +187,7 @@ public class HasilPemantauanServiceImpl implements HasilPemantauanService {
                 .orElseThrow(() -> new ResourceNotFoundException("Data identifikasi not found for id_rencana_kinerja: " + idRekin));
         JsonNode pemantauanNode = objectMapper.convertValue(pemantauan, JsonNode.class);
 
-        if (hpRepository.existsByIdRekin(idRekin)) {
+        if (hpRepository.existsByIdRencanaKinerja(idRekin)) {
             throw new ResourceNotFoundException("Data hasil pemantauan already exists for id_rencana_kinerja: " + idRekin);
         }
 

@@ -1,19 +1,22 @@
 package cc.kertaskerja.manrisk_fraud.service.identifikasi;
 
-import cc.kertaskerja.manrisk_fraud.dto.IdentifikasiDTO;
+import cc.kertaskerja.manrisk_fraud.dto.identifikasi.IdentifikasiReqDTO;
+import cc.kertaskerja.manrisk_fraud.dto.identifikasi.IdentifikasiResDTO;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
 public interface IdentifikasiService {
-    List<IdentifikasiDTO> findAllIdentifikasi(String nip, String tahun);
+    List<IdentifikasiResDTO> findAllIdentifikasi(String nip, String tahun);
 
-    IdentifikasiDTO findOneIdentifikasi(String idRekin);
+    IdentifikasiResDTO findOneIdentifikasi(String idRekin);
 
-    IdentifikasiDTO saveIdentifikasi(IdentifikasiDTO identifikasiDTO);
+    IdentifikasiResDTO saveIdentifikasi(IdentifikasiReqDTO reqDTO);
 
-    IdentifikasiDTO updateIdentifikasi(String idRekin, IdentifikasiDTO identifikasiDTO);
+    IdentifikasiResDTO updateIdentifikasi(String idRekin, IdentifikasiReqDTO reqDTO);
+
+    IdentifikasiResDTO verifyIdentifikasi(String idRekin, IdentifikasiReqDTO.UpdateStatusDTO updateDTO);
 
     void deleteIdentifikasi(String idRekin);
 }

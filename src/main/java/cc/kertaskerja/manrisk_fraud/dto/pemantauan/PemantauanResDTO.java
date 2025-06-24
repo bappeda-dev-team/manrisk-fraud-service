@@ -1,13 +1,8 @@
-package cc.kertaskerja.manrisk_fraud.dto;
+package cc.kertaskerja.manrisk_fraud.dto.pemantauan;
 
-import cc.kertaskerja.manrisk_fraud.dto.pemantauan.PemantauanResDTO;
-import cc.kertaskerja.manrisk_fraud.helper.PegawaiInfoConverter;
+import cc.kertaskerja.manrisk_fraud.dto.PegawaiInfo;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -18,8 +13,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class HasilPemantauanDTO {
-    @NotBlank(message = "Wajib memasukkan ID Rencana Kinerja dan tidak boleh kosong!")
+public class PemantauanResDTO {
+    private Long id;
     private String id_rencana_kinerja;
 
     private Integer id_pohon;
@@ -44,24 +39,7 @@ public class HasilPemantauanDTO {
     private String catatan;
     private String status;
     private String keterangan;
-
-    @NotNull(message = "Skala dampak tidak boleh kosong!")
-    private Integer skala_dampak;
-
-    @NotNull(message = "Skala kemungkinan tidak boleh kosong!")
-    private Integer skala_kemungkinan;
-
-    private Integer tingkat_risiko;
-    private String level_risiko;
-
-    private PemantauanResDTO pemantauanResDTO;
-
-    @Column(columnDefinition = "jsonb")
-    @Convert(converter = PegawaiInfoConverter.class)
     private PegawaiInfo pembuat;
-
-    @Column(columnDefinition = "jsonb")
-    @Convert(converter = PegawaiInfoConverter.class)
     private PegawaiInfo verifikator;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -77,16 +55,6 @@ public class HasilPemantauanDTO {
     public static class OperasionalDaerah {
         private String kode_opd;
         private String nama_opd;
-    }
-
-    @Data
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class PegawaiInfo {
-        private String nama;
-        private String nip;
-        private String golongan;
     }
 }
 

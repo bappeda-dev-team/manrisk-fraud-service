@@ -1,6 +1,7 @@
 package cc.kertaskerja.manrisk_fraud.service.penangangan;
 
-import cc.kertaskerja.manrisk_fraud.dto.PenangananDTO;
+import cc.kertaskerja.manrisk_fraud.dto.penanganan.PenangananReqDTO;
+import cc.kertaskerja.manrisk_fraud.dto.penanganan.PenangananResDTO;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -8,15 +9,15 @@ import java.util.List;
 @Service
 public interface PenangananService {
 
-    List<PenangananDTO> findAllPenanganan(String nip, String tahun);
+    List<PenangananResDTO> findAllPenanganan(String nip, String tahun);
 
-    PenangananDTO findOnePenanganan(String idRekin);
+    PenangananResDTO findOnePenanganan(String idRekin);
 
-    PenangananDTO savePenanganan(PenangananDTO penangananDTO);
+    PenangananResDTO savePenanganan(PenangananReqDTO reqDTO);
 
-    PenangananDTO updatePenanganan(String idRekin, PenangananDTO penangananDTO);
+    PenangananResDTO updatePenanganan(String idRekin, PenangananReqDTO reqDTO);
 
-    PenangananDTO updateStatusPenanganan(String idRekin, PenangananDTO.UpdateStatusDTO updateDTO);
+    PenangananResDTO verifyPenanganan(String idRekin, PenangananReqDTO.UpdateStatusDTO updateDTO);
 
     void deletePenanganan(String idRekin);
 }

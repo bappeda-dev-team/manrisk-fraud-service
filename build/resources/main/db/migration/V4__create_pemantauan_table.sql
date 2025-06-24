@@ -2,7 +2,7 @@ DROP TABLE IF EXISTS pemantauan;
 
 CREATE TABLE pemantauan (
                             id BIGSERIAL,
-                            id_rekin VARCHAR(100) PRIMARY KEY UNIQUE,
+                            id_rencana_kinerja VARCHAR(100) PRIMARY KEY,
                             pemilik_risiko VARCHAR(100) NOT NULL,
                             risiko_kecurangan VARCHAR(255) NOT NULL,
                             deskripsi_kegiatan_pengendalian VARCHAR(255) NOT NULL,
@@ -15,6 +15,8 @@ CREATE TABLE pemantauan (
                             catatan VARCHAR(255),
                             status VARCHAR(50),
                             keterangan VARCHAR(100),
+                            pembuat JSONB,
+                            verifikator JSONB,
                             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                             updated_at TIMESTAMP
 );

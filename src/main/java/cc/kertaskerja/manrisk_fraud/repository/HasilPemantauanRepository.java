@@ -5,5 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface HasilPemantauanRepository extends JpaRepository<HasilPemantauan, Long> {
 
-    boolean existsByIdRekin(String idRekin);
+    boolean existsByIdRencanaKinerja(String idRekin);
 }

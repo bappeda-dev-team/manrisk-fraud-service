@@ -1,6 +1,7 @@
 package cc.kertaskerja.manrisk_fraud.service.pemantauan;
 
-import cc.kertaskerja.manrisk_fraud.dto.PemantauanDTO;
+import cc.kertaskerja.manrisk_fraud.dto.pemantauan.PemantauanReqDTO;
+import cc.kertaskerja.manrisk_fraud.dto.pemantauan.PemantauanResDTO;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -8,15 +9,15 @@ import java.util.List;
 @Service
 public interface PemantauanService {
 
-    List<PemantauanDTO> findAllPemantauan(String nip, String tahun);
+    List<PemantauanResDTO> findAllPemantauan(String nip, String tahun);
 
-    PemantauanDTO findOnePemantauan(String idRekin);
+    PemantauanResDTO findOnePemantauan(String idRekin);
 
-    PemantauanDTO savePemantauan(PemantauanDTO pemantauanDTO);
+    PemantauanResDTO savePemantauan(PemantauanReqDTO reqDTO);
 
-    PemantauanDTO updatePemantauan(String idRekin, PemantauanDTO pemantauanDTO);
+    PemantauanResDTO updatePemantauan(String idRekin, PemantauanReqDTO reqDTO);
 
-    PemantauanDTO updateStatusPemantauan(String idRekin, PemantauanDTO.UpdateStatusDTO updateDTO);
+    PemantauanResDTO verifyPemantauan(String idRekin, PemantauanReqDTO.UpdateStatusDTO updateDTO);
 
     void deletePemantauan(String idRekin);
 }

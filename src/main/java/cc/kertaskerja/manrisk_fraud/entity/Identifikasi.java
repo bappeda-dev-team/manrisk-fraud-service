@@ -1,6 +1,9 @@
 package cc.kertaskerja.manrisk_fraud.entity;
 
 import cc.kertaskerja.manrisk_fraud.common.BaseAuditable;
+import cc.kertaskerja.manrisk_fraud.dto.PegawaiInfo;
+import cc.kertaskerja.manrisk_fraud.enums.StatusEnum;
+import cc.kertaskerja.manrisk_fraud.helper.PegawaiInfoConverter;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -19,8 +22,8 @@ public class Identifikasi extends BaseAuditable {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "id_rekin")
-    private String idRekin;
+    @Column(name = "id_rencana_kinerja")
+    private String idRencanaKinerja;
 
     @Column(name = "nama_risiko")
     private String namaRisiko;
@@ -37,9 +40,26 @@ public class Identifikasi extends BaseAuditable {
     @Column(name = "kemungkinan_pihak_terkait")
     private String kemungkinanPihakTerkait;
 
-    @Column(name = "status")
-    private String status;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", length = 50)
+    private StatusEnum status;
 
     @Column(name = "keterangan")
     private String keterangan;
+
+    @Convert(converter = PegawaiInfoConverter.class)
+    @Column(name = "pembuat", columnDefinition = "jsonb")
+    @org.hibernate.annotations.ColumnTransformer(
+            read = "pembuat::text",
+            write = "?::jsonb"
+    )
+    private PegawaiInfo pembuat;
+
+    @Convert(converter = PegawaiInfoConverter.class)
+    @Column(name = "verifikator", columnDefinition = "jsonb")
+    @org.hibernate.annotations.ColumnTransformer(
+            read = "verifikator::text",
+            write = "?::jsonb"
+    )
+    private PegawaiInfo verifikator;
 }
