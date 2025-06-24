@@ -12,8 +12,8 @@ import lombok.*;
 @Builder
 public class HasilPemantauan extends BaseAuditable {
     @Id
-    @Column(name = "id_rekin")
-    private String idRekin;
+    @Column(name = "id_rencana_kinerja")
+    private String idRencanaKinerja;
 
     @Column(name = "skala_dampak")
     private int skalaDampak;
@@ -29,14 +29,14 @@ public class HasilPemantauan extends BaseAuditable {
 
     @OneToOne(fetch = FetchType.LAZY)
     @MapsId
-    @JoinColumn(name = "id_rekin", referencedColumnName = "id_rekin")
+    @JoinColumn(name = "id_rencana_kinerja", referencedColumnName = "id_rencana_kinerja")
     @JsonBackReference
     private Pemantauan pemantauan;
 
     public HasilPemantauan() {}
 
-    public HasilPemantauan(String idRekin, int skalaDampak, int skalaKemungkinan, Integer tingkatRisiko, String levelRisiko, Pemantauan pemantauan) {
-        this.idRekin = idRekin;
+    public HasilPemantauan(String idRencanaKinerja, int skalaDampak, int skalaKemungkinan, Integer tingkatRisiko, String levelRisiko, Pemantauan pemantauan) {
+        this.idRencanaKinerja = idRencanaKinerja;
         this.skalaDampak = skalaDampak;
         this.skalaKemungkinan = skalaKemungkinan;
         this.tingkatRisiko = tingkatRisiko;
@@ -44,12 +44,12 @@ public class HasilPemantauan extends BaseAuditable {
         this.pemantauan = pemantauan;
     }
 
-    public String getIdRekin() {
-        return idRekin;
+    public String getIdRencanaKinerja() {
+        return idRencanaKinerja;
     }
 
-    public void setIdRekin(String idRekin) {
-        this.idRekin = idRekin;
+    public void setIdRencanaKinerja(String idRencanaKinerja) {
+        this.idRencanaKinerja = idRencanaKinerja;
     }
 
     public int getSkalaDampak() {
@@ -95,7 +95,7 @@ public class HasilPemantauan extends BaseAuditable {
     @Override
     public String toString() {
         return "HasilPemantauan{" +
-                "idRekin='" + idRekin + '\'' +
+                "idRencanaKinerja='" + idRencanaKinerja + '\'' +
                 ", skalaDampak=" + skalaDampak +
                 ", skalaKemungkinan=" + skalaKemungkinan +
                 ", tingkatRisiko=" + tingkatRisiko +

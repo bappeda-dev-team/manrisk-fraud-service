@@ -1,7 +1,8 @@
 package cc.kertaskerja.manrisk_fraud.controller;
 
 import cc.kertaskerja.manrisk_fraud.dto.ApiResponse;
-import cc.kertaskerja.manrisk_fraud.dto.PemantauanDTO;
+import cc.kertaskerja.manrisk_fraud.dto.pemantauan.PemantauanReqDTO;
+import cc.kertaskerja.manrisk_fraud.dto.pemantauan.PemantauanResDTO;
 import cc.kertaskerja.manrisk_fraud.service.pemantauan.PemantauanService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -24,25 +25,25 @@ public class PemantauanController {
 
     @GetMapping("/get-all-data/{nip}/{tahun}")
     @Operation(summary = "Ambil semua data Pemantauan RTP berdasarkan NIP dan Tahun")
-    public ResponseEntity<ApiResponse<List<PemantauanDTO>>> getAllData(@PathVariable String nip,
-                                                                       @PathVariable String tahun) {
-        List<PemantauanDTO> result = pemantauanService.findAllPemantauan(nip, tahun);
+    public ResponseEntity<ApiResponse<List<PemantauanResDTO>>> getAllData(@PathVariable String nip,
+                                                                          @PathVariable String tahun) {
+        List<PemantauanResDTO> result = pemantauanService.findAllPemantauan(nip, tahun);
 
         return ResponseEntity.ok(ApiResponse.success(result, "Retrieved " + result.size() + " data successfully"));
     }
 
     @GetMapping("/get-detail/{idRekin}")
     @Operation(summary = "Ambil satu data Pemantauan RTP berdasarkan ID Rencana Kinerja")
-    public ResponseEntity<ApiResponse<PemantauanDTO>> getByIdRekin(@PathVariable String idRekin) {
-        PemantauanDTO dto = pemantauanService.findOnePemantauan(idRekin);
-        ApiResponse<PemantauanDTO> response = ApiResponse.success(dto, "Retrieved 1 data successfully");
+    public ResponseEntity<ApiResponse<PemantauanResDTO>> getByIdRekin(@PathVariable String idRekin) {
+        PemantauanResDTO dto = pemantauanService.findOnePemantauan(idRekin);
+        ApiResponse<PemantauanResDTO> response = ApiResponse.success(dto, "Retrieved 1 data successfully");
 
         return ResponseEntity.ok(response);
     }
 
     @PostMapping
     @Operation(summary = "Simpan data Pemantauan RTP baru")
-    public ResponseEntity<ApiResponse<?>> savePemantauan(@Valid @RequestBody PemantauanDTO dto,
+    public ResponseEntity<ApiResponse<?>> savePemantauan(@Valid @RequestBody PemantauanReqDTO dto,
                                                          BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             List<String> errorMessages = bindingResult.getFieldErrors().stream()
@@ -60,7 +61,7 @@ public class PemantauanController {
             return ResponseEntity.badRequest().body(errorResponse);
         }
 
-        PemantauanDTO result = pemantauanService.savePemantauan(dto);
+        PemantauanResDTO result = pemantauanService.savePemantauan(dto);
 
         return ResponseEntity.ok(ApiResponse.success(result, "Saved successfully"));
     }
@@ -68,7 +69,7 @@ public class PemantauanController {
     @PutMapping("/{idRekin}")
     @Operation(summary = "Update data Pemantauan RTP berdasarkan ID Rencana Kinerja")
     public ResponseEntity<ApiResponse<?>> updatePemantauan(@PathVariable String idRekin,
-                                                           @Valid @RequestBody PemantauanDTO dto,
+                                                           @Valid @RequestBody PemantauanReqDTO dto,
                                                            BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             List<String> errorMessages = bindingResult.getFieldErrors().stream()
@@ -86,7 +87,7 @@ public class PemantauanController {
             return ResponseEntity.badRequest().body(errorResponse);
         }
 
-        PemantauanDTO result = pemantauanService.updatePemantauan(idRekin, dto);
+        PemantauanResDTO result = pemantauanService.updatePemantauan(idRekin, dto);
 
         return ResponseEntity.ok(ApiResponse.success(result, "Updated successfully"));
     }
@@ -94,7 +95,7 @@ public class PemantauanController {
     @PatchMapping("/{idRekin}")
     @Operation(summary = "Update status Pemantauan RTP berdasarkan ID Rencana Kinerja")
     public ResponseEntity<ApiResponse<?>> updateStatusPemantauan(@PathVariable String idRekin,
-                                                                 @Valid @RequestBody PemantauanDTO.UpdateStatusDTO dto,
+                                                                 @Valid @RequestBody PemantauanReqDTO.UpdateStatusDTO dto,
                                                                  BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             List<String> errorMessages = bindingResult.getFieldErrors().stream()
@@ -112,7 +113,7 @@ public class PemantauanController {
             return ResponseEntity.badRequest().body(errorResponse);
         }
 
-        PemantauanDTO updated = pemantauanService.updateStatusPemantauan(idRekin, dto);
+        PemantauanResDTO updated = pemantauanService.verifyPemantauan(idRekin, dto);
 
         return ResponseEntity.ok(ApiResponse.updated(updated));
     }

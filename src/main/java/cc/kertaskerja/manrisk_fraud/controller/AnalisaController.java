@@ -1,6 +1,7 @@
 package cc.kertaskerja.manrisk_fraud.controller;
 
-import cc.kertaskerja.manrisk_fraud.dto.AnalisaDTO;
+import cc.kertaskerja.manrisk_fraud.dto.analisa.AnalisaReqDTO;
+import cc.kertaskerja.manrisk_fraud.dto.analisa.AnalisaResDTO;
 import cc.kertaskerja.manrisk_fraud.dto.ApiResponse;
 import cc.kertaskerja.manrisk_fraud.service.analisa.AnalisaService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -24,27 +25,26 @@ public class AnalisaController {
 
     @GetMapping("/get-all-data/{nip}/{tahun}")
     @Operation(summary = "Ambil semua data Analisa berdasarkan NIP dan Tahun")
-    public ResponseEntity<ApiResponse<List<AnalisaDTO>>> getAllData(@PathVariable String nip,
-                                                                    @PathVariable String tahun) {
-        List<AnalisaDTO> result = analisaService.findAllAnalisa(nip, tahun);
+    public ResponseEntity<ApiResponse<List<AnalisaResDTO>>> getAllData(@PathVariable String nip,
+                                                                       @PathVariable String tahun) {
+        List<AnalisaResDTO> result = analisaService.findAllAnalisa(nip, tahun);
 
         return ResponseEntity.ok(ApiResponse.success(result, "Retrieved " + result.size() + " data successfully"));
     }
 
     @GetMapping("/get-detail/{idRekin}")
     @Operation(summary = "Ambil satu data Analisa berdasarkan ID Rencana Kinerja")
-    public ResponseEntity<ApiResponse<AnalisaDTO>> getByIdRekin(@PathVariable String idRekin) {
-        AnalisaDTO dto = analisaService.findOneAnalisa(idRekin);
-        ApiResponse<AnalisaDTO> response = ApiResponse.success(dto, "Retrieved 1 data successfully");
+    public ResponseEntity<ApiResponse<AnalisaResDTO>> getByIdRekin(@PathVariable String idRekin) {
+        AnalisaResDTO dto = analisaService.findOneAnalisa(idRekin);
+        ApiResponse<AnalisaResDTO> response = ApiResponse.success(dto, "Retrieved 1 data successfully");
 
         return ResponseEntity.ok(response);
     }
 
     @PostMapping
     @Operation(summary = "Simpan data Analisa baru")
-    public ResponseEntity<ApiResponse<?>> saveAnalisa(
-            @Valid @RequestBody AnalisaDTO analisaDto,
-            BindingResult bindingResult) {
+    public ResponseEntity<ApiResponse<?>> saveAnalisa(@Valid @RequestBody AnalisaReqDTO reqDTO,
+                                                      BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             List<String> errorMessages = bindingResult.getFieldErrors().stream()
                     .map(error -> error.getField() + ": " + error.getDefaultMessage())
@@ -57,21 +57,18 @@ public class AnalisaController {
                     .errors(errorMessages)
                     .timestamp(LocalDateTime.now())
                     .build();
-
             return ResponseEntity.badRequest().body(errorResponse);
         }
 
-        AnalisaDTO result = analisaService.saveAnalisa(analisaDto);
-
+        AnalisaResDTO result = analisaService.saveAnalisa(reqDTO);
         return ResponseEntity.ok(ApiResponse.success(result, "Saved successfully"));
     }
 
     @PutMapping("/{idRekin}")
     @Operation(summary = "Update data identifikasi berdasarkan ID Rencana Kinerja")
-    public ResponseEntity<ApiResponse<?>> updateAnalisa(
-            @PathVariable String idRekin,
-            @Valid @RequestBody AnalisaDTO analisaDto,
-            BindingResult bindingResult) {
+    public ResponseEntity<ApiResponse<?>> updateAnalisa(@PathVariable String idRekin,
+                                                        @Valid @RequestBody AnalisaReqDTO reqDTO,
+                                                        BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             List<String> errorMessages = bindingResult.getFieldErrors().stream()
                     .map(error -> error.getField() + ": " + error.getDefaultMessage())
@@ -88,17 +85,16 @@ public class AnalisaController {
             return ResponseEntity.badRequest().body(errorResponse);
         }
 
-        AnalisaDTO result = analisaService.updateAnalisa(idRekin, analisaDto);
+        AnalisaResDTO result = analisaService.updateAnalisa(idRekin, reqDTO);
 
         return ResponseEntity.ok(ApiResponse.success(result, "Updated successfully"));
     }
 
     @PatchMapping("/{idRekin}")
-    @Operation(summary = "Update status Analisa berdasarkan ID Rencana Kinerja")
-    public ResponseEntity<ApiResponse<?>> updateStatusAnalisa(
-            @PathVariable String idRekin,
-            @Valid @RequestBody AnalisaDTO.UpdateStatusDTO updateDto,
-            BindingResult bindingResult) {
+    @Operation(summary = "Verifikasi Analisa berdasarkan ID Rencana Kinerja")
+    public ResponseEntity<ApiResponse<?>> updateStatusAnalisa(@PathVariable String idRekin,
+                                                              @Valid @RequestBody AnalisaReqDTO.UpdateStatusDTO updateDto,
+                                                              BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             List<String> errorMessages = bindingResult.getFieldErrors().stream()
                     .map(error -> error.getField() + ": " + error.getDefaultMessage())
@@ -115,7 +111,7 @@ public class AnalisaController {
             return ResponseEntity.badRequest().body(errorResponse);
         }
 
-        AnalisaDTO updated = analisaService.updateStatusAnalisa(idRekin, updateDto);
+        AnalisaResDTO updated = analisaService.verifyAnalisa(idRekin, updateDto);
 
         return ResponseEntity.ok(ApiResponse.updated(updated));
     }

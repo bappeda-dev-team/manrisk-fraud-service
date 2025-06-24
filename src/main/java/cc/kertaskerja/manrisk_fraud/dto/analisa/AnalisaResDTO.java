@@ -1,5 +1,6 @@
-package cc.kertaskerja.manrisk_fraud.dto;
+package cc.kertaskerja.manrisk_fraud.dto.analisa;
 
+import cc.kertaskerja.manrisk_fraud.dto.PegawaiInfo;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.validation.constraints.NotBlank;
@@ -13,10 +14,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class PenangananDTO {
+public class AnalisaResDTO {
     private Long id;
-
-    @NotBlank(message = "Wajib memasukkan ID Rencana Kinerja dan tidak boleh kosong!")
     private String id_rencana_kinerja;
 
     private Integer id_pohon;
@@ -29,27 +28,17 @@ public class PenangananDTO {
     private String nama_pegawai;
     private OperasionalDaerah operasional_daerah;
 
-    @NotBlank(message = "Existing Control wajib diisi!")
-    private String existing_control;
-
-    @NotBlank(message = "Jenis perlakuan risiko tidak boleh koson!")
-    private String jenis_perlakuan_risiko;
-
-    @NotBlank(message = "Rencana perlakuan risiko tidak boleh kosong!")
-    private String rencana_perlakuan_risiko;
-
-    @NotBlank(message = "Biaya perlakuan risiko tidak boleh kosong!")
-    private String biaya_perlakuan_risiko;
-
-    @NotBlank(message = "Harap mengisi target waktu")
-    private String target_waktu;
-
-    @NotBlank(message = "PIC wajib diisi!")
-    private String pic;
-
+    private String nama_risiko;
+    private String penyebab;
+    private String akibat;
+    private int skala_dampak;
+    private int skala_kemungkinan;
+    private int tingkat_risiko;
+    private String level_risiko;
     private String status;
-
     private String keterangan;
+    private PegawaiInfo pembuat;
+    private PegawaiInfo verifikator;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime created_at;
@@ -64,15 +53,5 @@ public class PenangananDTO {
     public static class OperasionalDaerah {
         private String kode_opd;
         private String nama_opd;
-    }
-
-    // ✅ Nested DTO for partial update
-    @Getter
-    @Setter
-    public static class UpdateStatusDTO {
-        @NotBlank(message = "Status tidak boleh kosong")
-        private String status;
-
-        private String keterangan;
     }
 }

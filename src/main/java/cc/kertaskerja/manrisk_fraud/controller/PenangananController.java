@@ -1,7 +1,8 @@
 package cc.kertaskerja.manrisk_fraud.controller;
 
 import cc.kertaskerja.manrisk_fraud.dto.ApiResponse;
-import cc.kertaskerja.manrisk_fraud.dto.PenangananDTO;
+import cc.kertaskerja.manrisk_fraud.dto.penanganan.PenangananReqDTO;
+import cc.kertaskerja.manrisk_fraud.dto.penanganan.PenangananResDTO;
 import cc.kertaskerja.manrisk_fraud.service.penangangan.PenangananService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -26,25 +27,25 @@ public class PenangananController {
 
     @GetMapping("/get-all-data/{nip}/{tahun}")
     @Operation(summary = "Ambil semua data Penanganan berdasarkan NIP dan Tahun")
-    public ResponseEntity<ApiResponse<List<PenangananDTO>>> getAllData(@PathVariable String nip,
-                                                                       @PathVariable String tahun) {
-        List<PenangananDTO> result = penangananService.findAllPenanganan(nip, tahun);
+    public ResponseEntity<ApiResponse<List<PenangananResDTO>>> getAllData(@PathVariable String nip,
+                                                                          @PathVariable String tahun) {
+        List<PenangananResDTO> result = penangananService.findAllPenanganan(nip, tahun);
 
         return ResponseEntity.ok(ApiResponse.success(result, "Retrieved " + result.size() + " data successfully"));
     }
 
     @GetMapping("/get-detail/{idRekin}")
     @Operation(summary = "Ambil satu data Penanganan berdasarkan ID Rencana Kinerja")
-    public ResponseEntity<ApiResponse<PenangananDTO>> getByIdRekin(@PathVariable String idRekin) {
-        PenangananDTO dto = penangananService.findOnePenanganan(idRekin);
-        ApiResponse<PenangananDTO> response = ApiResponse.success(dto, "Retrieved 1 data successfully");
+    public ResponseEntity<ApiResponse<PenangananResDTO>> getByIdRekin(@PathVariable String idRekin) {
+        PenangananResDTO dto = penangananService.findOnePenanganan(idRekin);
+        ApiResponse<PenangananResDTO> response = ApiResponse.success(dto, "Retrieved 1 data successfully");
 
         return ResponseEntity.ok(response);
     }
 
     @PostMapping
     @Operation(summary = "Simpan data Penanganan baru")
-    public ResponseEntity<ApiResponse<?>> savePenanganan(@Valid @RequestBody PenangananDTO penangananDto,
+    public ResponseEntity<ApiResponse<?>> savePenanganan(@Valid @RequestBody PenangananReqDTO reqDTO,
                                                          BindingResult bindingResult) {
 
         if (bindingResult.hasErrors()) {
@@ -63,7 +64,7 @@ public class PenangananController {
             return ResponseEntity.badRequest().body(errorResponse);
         }
 
-        PenangananDTO result = penangananService.savePenanganan(penangananDto);
+        PenangananResDTO result = penangananService.savePenanganan(reqDTO);
 
         return ResponseEntity.ok(ApiResponse.success(result, "Saved successfully"));
     }
@@ -71,7 +72,7 @@ public class PenangananController {
     @PutMapping("/{idRekin}")
     @Operation(summary = "Update data Penanganan berdasarkan ID Rencana Kinerja")
     public ResponseEntity<ApiResponse<?>> updatePenanganan(@PathVariable String idRekin,
-                                                           @Valid @RequestBody PenangananDTO penangananDto,
+                                                           @Valid @RequestBody PenangananReqDTO reqDTO,
                                                            BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             List<String> errorMessages = bindingResult.getFieldErrors().stream()
@@ -89,15 +90,15 @@ public class PenangananController {
             return ResponseEntity.badRequest().body(errorResponse);
         }
 
-        PenangananDTO result = penangananService.updatePenanganan(idRekin, penangananDto);
+        PenangananResDTO result = penangananService.updatePenanganan(idRekin, reqDTO);
 
         return ResponseEntity.ok(ApiResponse.success(result, "Updated successfully"));
     }
 
     @PatchMapping("/{idRekin}")
-    @Operation(summary = "Update status Penanganan berdasarkan ID Rencana Kinerja")
-    public ResponseEntity<ApiResponse<?>> updateStatusPenanganan(@PathVariable String idRekin,
-                                                                 @Valid @RequestBody PenangananDTO.UpdateStatusDTO dto,
+    @Operation(summary = "Verifikasi Penanganan berdasarkan ID Rencana Kinerja")
+    public ResponseEntity<ApiResponse<?>> verifyPenanganan(@PathVariable String idRekin,
+                                                                 @Valid @RequestBody PenangananReqDTO.UpdateStatusDTO dto,
                                                                  BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             List<String> errorMessages = bindingResult.getFieldErrors().stream()
@@ -115,7 +116,7 @@ public class PenangananController {
             return ResponseEntity.badRequest().body(errorResponse);
         }
 
-        PenangananDTO updated = penangananService.updateStatusPenanganan(idRekin, dto);
+        PenangananResDTO updated = penangananService.verifyPenanganan(idRekin, dto);
 
         return ResponseEntity.ok(ApiResponse.updated(updated));
     }

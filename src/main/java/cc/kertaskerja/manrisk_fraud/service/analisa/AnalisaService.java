@@ -1,21 +1,22 @@
 package cc.kertaskerja.manrisk_fraud.service.analisa;
 
-import cc.kertaskerja.manrisk_fraud.dto.AnalisaDTO;
+import cc.kertaskerja.manrisk_fraud.dto.analisa.AnalisaReqDTO;
+import cc.kertaskerja.manrisk_fraud.dto.analisa.AnalisaResDTO;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
 public interface AnalisaService {
-    List<AnalisaDTO> findAllAnalisa(String nip, String tahun);
+    List<AnalisaResDTO> findAllAnalisa(String nip, String tahun);
 
-    AnalisaDTO findOneAnalisa(String idRekin);
+    AnalisaResDTO findOneAnalisa(String idRekin);
 
-    AnalisaDTO saveAnalisa(AnalisaDTO analisaDTO);
+    AnalisaResDTO saveAnalisa(AnalisaReqDTO reqDTO);
 
-    AnalisaDTO updateAnalisa(String idRekin, AnalisaDTO analisaDTO);
+    AnalisaResDTO updateAnalisa(String idRekin, AnalisaReqDTO reqDto);
 
-    AnalisaDTO updateStatusAnalisa(String idRekin, AnalisaDTO.UpdateStatusDTO updateDTO);
+    AnalisaResDTO verifyAnalisa(String idRekin, AnalisaReqDTO.UpdateStatusDTO updateDTO);
 
     void deleteAnalisa(String idRekin);
 }

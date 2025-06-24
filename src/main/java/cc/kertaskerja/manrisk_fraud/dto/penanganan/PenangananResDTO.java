@@ -1,7 +1,11 @@
-package cc.kertaskerja.manrisk_fraud.dto;
+package cc.kertaskerja.manrisk_fraud.dto.penanganan;
 
+import cc.kertaskerja.manrisk_fraud.dto.PegawaiInfo;
+import cc.kertaskerja.manrisk_fraud.helper.PegawaiInfoConverter;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
@@ -13,10 +17,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class IdentifikasiDTO {
+public class PenangananResDTO {
     private Long id;
-
-    @NotBlank(message = "Wajib memasukkan ID Rencana Kinerja dan tidak boleh kosong!")
     private String id_rencana_kinerja;
 
     private Integer id_pohon;
@@ -29,23 +31,16 @@ public class IdentifikasiDTO {
     private String nama_pegawai;
     private OperasionalDaerah operasional_daerah;
 
-    @NotBlank(message = "Nama risiko tidak boleh kosong!")
-    private String nama_risiko;
-
-    @NotBlank(message = "Jenis risiko tidak boleh kosong")
-    private String jenis_risiko;
-
-    @NotBlank(message = "Kemungkinan kecurangan tidak boleh kosong")
-    private String kemungkinan_kecurangan;
-
-    @NotBlank(message = "Wajib mengisi kolom indikasi")
-    private String indikasi;
-
-    @NotBlank(message = "Wajib mengisi kolom kemungkinan terkait")
-    private String kemungkinan_pihak_terkait;
-
+    private String existing_control;
+    private String jenis_perlakuan_risiko;
+    private String rencana_perlakuan_risiko;
+    private String biaya_perlakuan_risiko;
+    private String target_waktu;
+    private String pic;
     private String status;
     private String keterangan;
+    private PegawaiInfo pembuat;
+    private PegawaiInfo verifikator;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime created_at;

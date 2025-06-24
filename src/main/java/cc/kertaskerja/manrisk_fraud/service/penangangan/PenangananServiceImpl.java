@@ -1,6 +1,7 @@
 package cc.kertaskerja.manrisk_fraud.service.penangangan;
 
-import cc.kertaskerja.manrisk_fraud.dto.PenangananDTO;
+import cc.kertaskerja.manrisk_fraud.dto.penanganan.PenangananReqDTO;
+import cc.kertaskerja.manrisk_fraud.dto.penanganan.PenangananResDTO;
 import cc.kertaskerja.manrisk_fraud.entity.Penangangan;
 import cc.kertaskerja.manrisk_fraud.enums.StatusEnum;
 import cc.kertaskerja.manrisk_fraud.exception.ResourceNotFoundException;
@@ -28,8 +29,8 @@ public class PenangananServiceImpl implements PenangananService {
         this.rencanaKinerjaService = rencanaKinerjaService;
     }
 
-    private PenangananDTO buildDTOFromRkAndPenanganan(JsonNode rk, Penangangan penanganan) {
-        return PenangananDTO.builder()
+    private PenangananResDTO buildDTOFromRkAndPenanganan(JsonNode rk, Penangangan penanganan) {
+        return PenangananResDTO.builder()
                 .id(penanganan.getId())
                 .id_rencana_kinerja(rk.path("id_rencana_kinerja").asText())
                 .id_pohon(rk.path("id_pohon").asInt())
@@ -40,7 +41,7 @@ public class PenangananServiceImpl implements PenangananService {
                 .status_rencana_kinerja(rk.path("status_rencana_kinerja").asText())
                 .pegawai_id(rk.path("pegawai_id").asText())
                 .nama_pegawai(rk.path("nama_pegawai").asText())
-                .operasional_daerah(PenangananDTO.OperasionalDaerah.builder()
+                .operasional_daerah(PenangananResDTO.OperasionalDaerah.builder()
                         .kode_opd(rk.path("operasional_daerah").path("kode_opd").asText())
                         .nama_opd(rk.path("operasional_daerah").path("nama_opd").asText())
                         .build())
@@ -52,13 +53,14 @@ public class PenangananServiceImpl implements PenangananService {
                 .pic(penanganan.getPic())
                 .status(penanganan.getStatus() != null ? penanganan.getStatus().name() : null)
                 .keterangan(penanganan.getKeterangan())
-                .created_at(penanganan.getCreatedAt())
-                .updated_at(penanganan.getUpdatedAt())
+                .pembuat(penanganan.getPembuat())
+                .verifikator(penanganan.getVerifikator())
+                .keterangan(penanganan.getKeterangan())
                 .build();
     }
 
-    private PenangananDTO buildDTOFromRkOnly(JsonNode rk) {
-        return PenangananDTO.builder()
+    private PenangananResDTO buildDTOFromRkOnly(JsonNode rk) {
+        return PenangananResDTO.builder()
                 .id(null)
                 .id_rencana_kinerja(rk.path("id_rencana_kinerja").asText())
                 .id_pohon(rk.path("id_pohon").asInt())
@@ -69,7 +71,7 @@ public class PenangananServiceImpl implements PenangananService {
                 .status_rencana_kinerja(rk.path("status_rencana_kinerja").asText())
                 .pegawai_id(rk.path("pegawai_id").asText())
                 .nama_pegawai(rk.path("nama_pegawai").asText())
-                .operasional_daerah(PenangananDTO.OperasionalDaerah.builder()
+                .operasional_daerah(PenangananResDTO.OperasionalDaerah.builder()
                         .kode_opd(rk.path("operasional_daerah").path("kode_opd").asText())
                         .nama_opd(rk.path("operasional_daerah").path("nama_opd").asText())
                         .build())
@@ -88,7 +90,7 @@ public class PenangananServiceImpl implements PenangananService {
 
 
     @Override
-    public List<PenangananDTO> findAllPenanganan(String nip, String tahun) {
+    public List<PenangananResDTO> findAllPenanganan(String nip, String tahun) {
         Map<String, Object> externalResponse = rencanaKinerjaService.getRencanaKinerja(nip, tahun);
         Object rkObj = externalResponse.get("rencana_kinerja");
 
@@ -102,7 +104,7 @@ public class PenangananServiceImpl implements PenangananService {
         Map<String, List<Penangangan>> penangananMap = new HashMap<>();
         for (int i = 0; i < penangananList.size(); i++) {
             Penangangan p = penangananList.get(i);
-            String idRekin = p.getIdRekin();
+            String idRekin = p.getIdRencanaKinerja();
 
             if (!penangananMap.containsKey(idRekin)) {
                 penangananMap.put(idRekin, new ArrayList<>());
@@ -111,7 +113,7 @@ public class PenangananServiceImpl implements PenangananService {
             penangananMap.get(idRekin).add(p);
         }
 
-        List<PenangananDTO> result = new ArrayList<>();
+        List<PenangananResDTO> result = new ArrayList<>();
 
         for (int i = 0; i < rekinList.size(); i++) {
             Map<String, Object> rk = rekinList.get(i);
@@ -133,7 +135,7 @@ public class PenangananServiceImpl implements PenangananService {
     }
 
     @Override
-    public PenangananDTO findOnePenanganan(String idRekin) {
+    public PenangananResDTO findOnePenanganan(String idRekin) {
         Map<String, Object> detailData = rencanaKinerjaService.getDetailRencanaKinerja(idRekin);
         Object rkObj = detailData.get("rencana_kinerja");
 
@@ -150,8 +152,8 @@ public class PenangananServiceImpl implements PenangananService {
 
     @Override
     @Transactional
-    public PenangananDTO savePenanganan(PenangananDTO penangananDTO) {
-        String idRekin = penangananDTO.getId_rencana_kinerja();
+    public PenangananResDTO savePenanganan(PenangananReqDTO reqDTO) {
+        String idRekin = reqDTO.getId_rencana_kinerja();
 
         if (idRekin == null || idRekin.isEmpty()) {
             throw new ResourceNotFoundException("id_rencana_kinerja is required");
@@ -166,19 +168,20 @@ public class PenangananServiceImpl implements PenangananService {
 
         JsonNode rkNode = objectMapper.convertValue(rkObj, JsonNode.class);
 
-        if (penangananRepository.existsByIdRekin(idRekin)) {
+        if (penangananRepository.existsByIdRencanaKinerja(idRekin)) {
             throw new ResourceNotFoundException("Data penanganan already exists for id_rencana_kinerja: " + idRekin);
         }
 
         Penangangan penanganan = Penangangan.builder()
-                .idRekin(idRekin)
-                .existingControl(penangananDTO.getExisting_control())
-                .jenisPerlakuanRisiko(penangananDTO.getJenis_perlakuan_risiko())
-                .rencanaPerlakuanRisiko(penangananDTO.getRencana_perlakuan_risiko())
-                .biayaPerlakuanRisiko(penangananDTO.getBiaya_perlakuan_risiko())
-                .targetWaktu(penangananDTO.getTarget_waktu())
-                .pic(penangananDTO.getPic())
+                .idRencanaKinerja(idRekin)
+                .existingControl(reqDTO.getExisting_control())
+                .jenisPerlakuanRisiko(reqDTO.getJenis_perlakuan_risiko())
+                .rencanaPerlakuanRisiko(reqDTO.getRencana_perlakuan_risiko())
+                .biayaPerlakuanRisiko(reqDTO.getBiaya_perlakuan_risiko())
+                .targetWaktu(reqDTO.getTarget_waktu())
+                .pic(reqDTO.getPic())
                 .status(StatusEnum.PENDING)
+                .pembuat(reqDTO.getPembuat())
                 .build();
 
         Penangangan saved = penangananRepository.save(penanganan);
@@ -188,7 +191,7 @@ public class PenangananServiceImpl implements PenangananService {
 
     @Override
     @Transactional
-    public PenangananDTO updatePenanganan(String idRekin, PenangananDTO penangananDTO) {
+    public PenangananResDTO updatePenanganan(String idRekin, PenangananReqDTO reqDTO) {
         Map<String, Object> rekinDetail = rencanaKinerjaService.getDetailRencanaKinerja(idRekin);
         Object rkObj = rekinDetail.get("rencana_kinerja");
 
@@ -199,12 +202,12 @@ public class PenangananServiceImpl implements PenangananService {
         Penangangan penangangan = penangananRepository.findOneByIdRekin(idRekin)
                 .orElseThrow(() -> new ResourceNotFoundException("Data penanganan not found for id_rencana_kinerja: " + idRekin));
 
-        penangangan.setExistingControl(penangananDTO.getExisting_control());
-        penangangan.setJenisPerlakuanRisiko(penangananDTO.getJenis_perlakuan_risiko());
-        penangangan.setRencanaPerlakuanRisiko(penangananDTO.getRencana_perlakuan_risiko());
-        penangangan.setBiayaPerlakuanRisiko(penangananDTO.getBiaya_perlakuan_risiko());
-        penangangan.setTargetWaktu(penangananDTO.getTarget_waktu());
-        penangangan.setPic(penangananDTO.getPic());
+        penangangan.setExistingControl(reqDTO.getExisting_control());
+        penangangan.setJenisPerlakuanRisiko(reqDTO.getJenis_perlakuan_risiko());
+        penangangan.setRencanaPerlakuanRisiko(reqDTO.getRencana_perlakuan_risiko());
+        penangangan.setBiayaPerlakuanRisiko(reqDTO.getBiaya_perlakuan_risiko());
+        penangangan.setTargetWaktu(reqDTO.getTarget_waktu());
+        penangangan.setPic(reqDTO.getPic());
 
         Penangangan updated = penangananRepository.save(penangangan);
         JsonNode rkNode = objectMapper.convertValue(rekinDetail, JsonNode.class);
@@ -214,13 +217,14 @@ public class PenangananServiceImpl implements PenangananService {
 
     @Override
     @Transactional
-    public PenangananDTO updateStatusPenanganan(String idRekin, PenangananDTO.UpdateStatusDTO updateDTO) {
+    public PenangananResDTO verifyPenanganan(String idRekin, PenangananReqDTO.UpdateStatusDTO updateDTO) {
         Penangangan entity = penangananRepository.findOneByIdRekin(idRekin)
                 .orElseThrow(() -> new ResourceNotFoundException("Data penanganan not found for id_rencana_kinerja: " + idRekin));
 
         try {
             StatusEnum statusEnum = StatusEnum.valueOf(updateDTO.getStatus().toUpperCase());
             entity.setStatus(statusEnum);
+            entity.setVerifikator(updateDTO.getVerifikator());
         } catch (IllegalArgumentException e) {
             throw new ResourceNotFoundException("Status tidak valid: " + updateDTO.getStatus());
         }
