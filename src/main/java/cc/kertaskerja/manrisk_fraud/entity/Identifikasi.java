@@ -5,7 +5,6 @@ import cc.kertaskerja.manrisk_fraud.dto.PegawaiInfo;
 import cc.kertaskerja.manrisk_fraud.enums.StatusEnum;
 import cc.kertaskerja.manrisk_fraud.helper.PegawaiInfoConverter;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 @Entity
