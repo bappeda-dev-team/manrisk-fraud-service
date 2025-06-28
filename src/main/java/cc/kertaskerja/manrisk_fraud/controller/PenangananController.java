@@ -47,7 +47,6 @@ public class PenangananController {
     @Operation(summary = "Simpan data Penanganan baru")
     public ResponseEntity<ApiResponse<?>> savePenanganan(@Valid @RequestBody PenangananReqDTO reqDTO,
                                                          BindingResult bindingResult) {
-
         if (bindingResult.hasErrors()) {
             List<String> errorMessages = bindingResult.getFieldErrors().stream()
                     .map(error -> error.getField() + ": " + error.getDefaultMessage())

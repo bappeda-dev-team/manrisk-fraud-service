@@ -35,11 +35,10 @@ public class HasilPemantauanServiceImpl implements HasilPemantauanService {
             .registerModule(new JavaTimeModule())
             .registerModule(new Hibernate6Module())
             .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+    private final HasilPemantauanRepository hasilPemantauanRepository;
 
 
     private HasilPemantauanResDTO buildDTOFFromHasilPemantauan(JsonNode rk, JsonNode pemantauan, HasilPemantauan h) {
-        System.out.println("pemantauan JSON: " + pemantauan.toPrettyString());
-
         return HasilPemantauanResDTO.builder()
                 .id_rencana_kinerja(rk.path("id_rencana_kinerja").asText())
                 .id_pohon(rk.path("id_pohon").asInt())
@@ -236,5 +235,91 @@ public class HasilPemantauanServiceImpl implements HasilPemantauanService {
         HasilPemantauan saved = hpRepository.save(hasilPemantauan);
 
         return buildDTOFFromHasilPemantauan(rkNode, pemantauanNode, saved);
+    }
+
+    @Override
+    @Transactional
+    public HasilPemantauanResDTO update(String idRekin, HasilPemantauanReqDTO dto) {
+        Map<String, Object> rekinDetail = rekinService.getDetailRencanaKinerja(idRekin);
+        Object rkObj = rekinDetail.get("rencana_kinerja");
+
+        if (!(rkObj instanceof Map)) {
+            throw new ResourceNotFoundException("Data rencana kinerja is not found");
+        }
+        JsonNode rkNode = objectMapper.convertValue(rkObj, JsonNode.class);
+
+        Pemantauan pemantauan = pemantauanRepository.findOneByIdRekin(idRekin)
+                .orElseThrow(() -> new ResourceNotFoundException("Data identifikasi not found for id_rencana_kinerja: " + idRekin));
+        JsonNode pemantauanNode = objectMapper.convertValue(pemantauan, JsonNode.class);
+
+        if (hpRepository.existsByIdRencanaKinerja(idRekin)) {
+            throw new ResourceNotFoundException("Data hasil pemantauan already exists for id_rencana_kinerja: " + idRekin);
+        }
+
+        HasilPemantauan hp = hasilPemantauanRepository.findOneByIdRekin(idRekin)
+                .orElseThrow(() -> new ResourceNotFoundException("Data hasil pemantauan not found for id_rencana_kinerja: " + idRekin));
+
+        int tingkatRisiko = (dto.getSkala_kemungkinan() * dto.getSkala_dampak());
+        String levelRisiko = tingkatRisiko <= 4 ? "Rendah"
+                : tingkatRisiko <= 12 ? "Menengah"
+                : tingkatRisiko <= 25 ? "Tinggi"
+                : "-";
+
+        hp.setSkalaDampak(dto.getSkala_dampak());
+        hp.setSkalaKemungkinan(dto.getSkala_kemungkinan());
+        hp.setTingkatRisiko(tingkatRisiko);
+        hp.setLevelRisiko(levelRisiko);
+        hp.setPemantauan(pemantauan);
+        hp.setPembuat(dto.getPembuat());
+
+        HasilPemantauan saved = hpRepository.save(hp);
+
+        return buildDTOFFromHasilPemantauan(rkNode, pemantauanNode, saved);
+    }
+
+    @Override
+    @Transactional
+    public HasilPemantauanResDTO verify(String idRekin, HasilPemantauanReqDTO.UpdateStatusDTO updateDTO) {
+        HasilPemantauan hp = hasilPemantauanRepository.findOneByIdRekin(idRekin)
+                .orElseThrow(() -> new ResourceNotFoundException("Data Hasil Pemantauan not found for id_rencana_kinerja: " + idRekin));
+
+        try {
+            StatusEnum status = StatusEnum.valueOf(updateDTO.getStatus());
+            hp.setStatus(status);
+            hp.setVerifikator(updateDTO.getVerifikator());
+            hp.setKeterangan(updateDTO.getKeterangan());
+        } catch (IllegalArgumentException e) {
+            throw new ResourceNotFoundException("Invalid status: " + updateDTO.getStatus());
+        }
+
+        HasilPemantauan updated = hpRepository.save(hp);
+
+        Map<String, Object> rekinDetail = rencanaKinerjaService.getDetailRencanaKinerja(idRekin);
+        Object rkObj = rekinDetail.get("rencana_kinerja");
+
+        if (!(rkObj instanceof Map)) {
+            throw new ResourceNotFoundException("Rencana kinerja not found for id_rencana_kinerja: " + idRekin);
+        }
+
+        JsonNode rkNode = objectMapper.convertValue(rkObj, JsonNode.class);
+
+        Pemantauan pemantauan = pemantauanRepository.findOneByIdRekin(idRekin)
+                .orElseThrow(() -> new ResourceNotFoundException("Data identifikasi not found for id_rencana_kinerja: " + idRekin));
+        JsonNode pemantauanNode = objectMapper.convertValue(pemantauan, JsonNode.class);
+
+        if (hpRepository.existsByIdRencanaKinerja(idRekin)) {
+            throw new ResourceNotFoundException("Data hasil pemantauan already exists for id_rencana_kinerja: " + idRekin);
+        }
+
+        return buildDTOFFromHasilPemantauan(rkNode, pemantauanNode, updated);
+    }
+
+    @Override
+    @Transactional
+    public void delete(String idRekin) {
+        HasilPemantauan hp = hpRepository.findOneByIdRekin(idRekin)
+                .orElseThrow(() -> new ResourceNotFoundException("Data hasil pemantauan not found for id_rencana_kinerja: " + idRekin));
+
+        hpRepository.delete(hp);
     }
 }

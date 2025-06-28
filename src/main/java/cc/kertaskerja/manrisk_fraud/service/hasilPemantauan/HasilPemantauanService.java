@@ -14,4 +14,10 @@ public interface HasilPemantauanService {
     HasilPemantauanResDTO findOne(String idRekin);
 
     HasilPemantauanResDTO save(HasilPemantauanReqDTO dto);
+
+    HasilPemantauanResDTO update(String idRekin, HasilPemantauanReqDTO dto);
+
+    HasilPemantauanResDTO verify(String idRekin, HasilPemantauanReqDTO.UpdateStatusDTO updateDTO);
+
+    void delete(String idRekin);
 }

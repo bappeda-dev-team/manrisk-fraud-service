@@ -8,7 +8,6 @@ import java.util.List;
 
 @Service
 public interface PemantauanService {
-
     List<PemantauanResDTO> findAllPemantauan(String nip, String tahun);
 
     PemantauanResDTO findOnePemantauan(String idRekin);

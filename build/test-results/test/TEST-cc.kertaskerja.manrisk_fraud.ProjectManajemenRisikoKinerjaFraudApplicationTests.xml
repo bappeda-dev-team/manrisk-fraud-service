@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="cc.kertaskerja.manrisk_fraud.ProjectManajemenRisikoKinerjaFraudApplicationTests" tests="1" skipped="0" failures="0" errors="0" timestamp="2025-06-25T15:33:45.064Z" hostname="Ilhams-MacBook-Pro.local" time="0.634">
+<testsuite name="cc.kertaskerja.manrisk_fraud.ProjectManajemenRisikoKinerjaFraudApplicationTests" tests="1" skipped="0" failures="0" errors="0" timestamp="2025-06-26T05:45:51.740Z" hostname="192.168.0.12" time="0.355">
   <properties/>
-  <testcase name="contextLoads()" classname="cc.kertaskerja.manrisk_fraud.ProjectManajemenRisikoKinerjaFraudApplicationTests" time="0.634"/>
-  <system-out><![CDATA[22:33:41.783 [Test worker] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [cc.kertaskerja.manrisk_fraud.ProjectManajemenRisikoKinerjaFraudApplicationTests]: ProjectManajemenRisikoKinerjaFraudApplicationTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
-22:33:41.843 [Test worker] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration cc.kertaskerja.manrisk_fraud.ProjectManajemenRisikoKinerjaFraudApplication for test class cc.kertaskerja.manrisk_fraud.ProjectManajemenRisikoKinerjaFraudApplicationTests
+  <testcase name="contextLoads()" classname="cc.kertaskerja.manrisk_fraud.ProjectManajemenRisikoKinerjaFraudApplicationTests" time="0.355"/>
+  <system-out><![CDATA[12:45:48.385 [Test worker] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [cc.kertaskerja.manrisk_fraud.ProjectManajemenRisikoKinerjaFraudApplicationTests]: ProjectManajemenRisikoKinerjaFraudApplicationTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+12:45:48.445 [Test worker] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration cc.kertaskerja.manrisk_fraud.ProjectManajemenRisikoKinerjaFraudApplication for test class cc.kertaskerja.manrisk_fraud.ProjectManajemenRisikoKinerjaFraudApplicationTests
 
   .   ____          _            __ _ _
  /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
@@ -14,19 +14,19 @@
 
  :: Spring Boot ::                (v3.5.0)
 
-2025-06-25T22:33:42.056+07:00  INFO 87152 --- [Project-Manajemen-Risiko-Kinerja-Fraud] [    Test worker] ajemenRisikoKinerjaFraudApplicationTests : Starting ProjectManajemenRisikoKinerjaFraudApplicationTests using Java 21.0.5 with PID 87152 (started by majapahit in /Users/majapahit/Documents/Kerjaan/Bappeda/Manrisk/manrisk-fraud-service)
-2025-06-25T22:33:42.057+07:00  INFO 87152 --- [Project-Manajemen-Risiko-Kinerja-Fraud] [    Test worker] ajemenRisikoKinerjaFraudApplicationTests : No active profile set, falling back to 1 default profile: "default"
-2025-06-25T22:33:42.072+07:00 DEBUG 87152 --- [Project-Manajemen-Risiko-Kinerja-Fraud] [    Test worker] o.s.w.c.s.GenericWebApplicationContext   : Refreshing org.springframework.web.context.support.GenericWebApplicationContext@2add4d24
-2025-06-25T22:33:43.030+07:00  INFO 87152 --- [Project-Manajemen-Risiko-Kinerja-Fraud] [    Test worker] org.flywaydb.core.FlywayExecutor         : Database: jdbc:postgresql://localhost:5432/manajemen_risiko_fraud (PostgreSQL 14.13)
-2025-06-25T22:33:43.063+07:00  INFO 87152 --- [Project-Manajemen-Risiko-Kinerja-Fraud] [    Test worker] o.f.core.internal.command.DbValidate     : Successfully validated 5 migrations (execution time 00:00.019s)
-2025-06-25T22:33:43.084+07:00  INFO 87152 --- [Project-Manajemen-Risiko-Kinerja-Fraud] [    Test worker] o.f.core.internal.command.DbMigrate      : Current version of schema "public": 5
-2025-06-25T22:33:43.085+07:00  INFO 87152 --- [Project-Manajemen-Risiko-Kinerja-Fraud] [    Test worker] o.f.core.internal.command.DbMigrate      : Schema "public" is up to date. No migration necessary.
-2025-06-25T22:33:44.603+07:00  WARN 87152 --- [Project-Manajemen-Risiko-Kinerja-Fraud] [    Test worker] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
-2025-06-25T22:33:44.664+07:00 DEBUG 87152 --- [Project-Manajemen-Risiko-Kinerja-Fraud] [    Test worker] s.w.s.m.m.a.RequestMappingHandlerMapping : 33 mappings in 'requestMappingHandlerMapping'
-2025-06-25T22:33:44.698+07:00 DEBUG 87152 --- [Project-Manajemen-Risiko-Kinerja-Fraud] [    Test worker] o.s.w.s.handler.SimpleUrlHandlerMapping  : Patterns [/webjars/**, /**, /swagger-ui*/*swagger-initializer.js, /swagger-ui*/**] in 'resourceHandlerMapping'
-2025-06-25T22:33:44.857+07:00 DEBUG 87152 --- [Project-Manajemen-Risiko-Kinerja-Fraud] [    Test worker] s.w.s.m.m.a.RequestMappingHandlerAdapter : ControllerAdvice beans: 0 @ModelAttribute, 0 @InitBinder, 1 RequestBodyAdvice, 1 ResponseBodyAdvice
-2025-06-25T22:33:44.888+07:00 DEBUG 87152 --- [Project-Manajemen-Risiko-Kinerja-Fraud] [    Test worker] .m.m.a.ExceptionHandlerExceptionResolver : ControllerAdvice beans: 2 @ExceptionHandler, 1 ResponseBodyAdvice
-2025-06-25T22:33:45.058+07:00  INFO 87152 --- [Project-Manajemen-Risiko-Kinerja-Fraud] [    Test worker] ajemenRisikoKinerjaFraudApplicationTests : Started ProjectManajemenRisikoKinerjaFraudApplicationTests in 3.146 seconds (process running for 3.702)
+2025-06-26T12:45:48.674+07:00  INFO 13447 --- [Project-Manajemen-Risiko-Kinerja-Fraud] [    Test worker] ajemenRisikoKinerjaFraudApplicationTests : Starting ProjectManajemenRisikoKinerjaFraudApplicationTests using Java 21.0.5 with PID 13447 (started by majapahit in /Users/majapahit/Documents/Kerjaan/Bappeda/Manrisk/manrisk-fraud-service)
+2025-06-26T12:45:48.675+07:00  INFO 13447 --- [Project-Manajemen-Risiko-Kinerja-Fraud] [    Test worker] ajemenRisikoKinerjaFraudApplicationTests : No active profile set, falling back to 1 default profile: "default"
+2025-06-26T12:45:48.689+07:00 DEBUG 13447 --- [Project-Manajemen-Risiko-Kinerja-Fraud] [    Test worker] o.s.w.c.s.GenericWebApplicationContext   : Refreshing org.springframework.web.context.support.GenericWebApplicationContext@2add4d24
+2025-06-26T12:45:49.701+07:00  INFO 13447 --- [Project-Manajemen-Risiko-Kinerja-Fraud] [    Test worker] org.flywaydb.core.FlywayExecutor         : Database: jdbc:postgresql://localhost:5432/manajemen_risiko_fraud (PostgreSQL 14.13)
+2025-06-26T12:45:49.754+07:00  INFO 13447 --- [Project-Manajemen-Risiko-Kinerja-Fraud] [    Test worker] o.f.core.internal.command.DbValidate     : Successfully validated 5 migrations (execution time 00:00.021s)
+2025-06-26T12:45:49.778+07:00  INFO 13447 --- [Project-Manajemen-Risiko-Kinerja-Fraud] [    Test worker] o.f.core.internal.command.DbMigrate      : Current version of schema "public": 5
+2025-06-26T12:45:49.780+07:00  INFO 13447 --- [Project-Manajemen-Risiko-Kinerja-Fraud] [    Test worker] o.f.core.internal.command.DbMigrate      : Schema "public" is up to date. No migration necessary.
+2025-06-26T12:45:51.285+07:00  WARN 13447 --- [Project-Manajemen-Risiko-Kinerja-Fraud] [    Test worker] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2025-06-26T12:45:51.346+07:00 DEBUG 13447 --- [Project-Manajemen-Risiko-Kinerja-Fraud] [    Test worker] s.w.s.m.m.a.RequestMappingHandlerMapping : 33 mappings in 'requestMappingHandlerMapping'
+2025-06-26T12:45:51.382+07:00 DEBUG 13447 --- [Project-Manajemen-Risiko-Kinerja-Fraud] [    Test worker] o.s.w.s.handler.SimpleUrlHandlerMapping  : Patterns [/webjars/**, /**, /swagger-ui*/*swagger-initializer.js, /swagger-ui*/**] in 'resourceHandlerMapping'
+2025-06-26T12:45:51.533+07:00 DEBUG 13447 --- [Project-Manajemen-Risiko-Kinerja-Fraud] [    Test worker] s.w.s.m.m.a.RequestMappingHandlerAdapter : ControllerAdvice beans: 0 @ModelAttribute, 0 @InitBinder, 1 RequestBodyAdvice, 1 ResponseBodyAdvice
+2025-06-26T12:45:51.559+07:00 DEBUG 13447 --- [Project-Manajemen-Risiko-Kinerja-Fraud] [    Test worker] .m.m.a.ExceptionHandlerExceptionResolver : ControllerAdvice beans: 2 @ExceptionHandler, 1 ResponseBodyAdvice
+2025-06-26T12:45:51.733+07:00  INFO 13447 --- [Project-Manajemen-Risiko-Kinerja-Fraud] [    Test worker] ajemenRisikoKinerjaFraudApplicationTests : Started ProjectManajemenRisikoKinerjaFraudApplicationTests in 3.219 seconds (process running for 3.759)
 ]]></system-out>
   <system-err><![CDATA[Mockito is currently self-attaching to enable the inline-mock-maker. This will no longer work in future releases of the JDK. Please add Mockito as an agent to your build as described in Mockito's documentation: https://javadoc.io/doc/org.mockito/mockito-core/latest/org.mockito/org/mockito/Mockito.html#0.3
 WARNING: A Java agent has been loaded dynamically (/Users/majapahit/.gradle/caches/modules-2/files-2.1/net.bytebuddy/byte-buddy-agent/1.17.5/58f9507f5f28d1d3e7adfb4ec2fe37c29d332c9b/byte-buddy-agent-1.17.5.jar)
