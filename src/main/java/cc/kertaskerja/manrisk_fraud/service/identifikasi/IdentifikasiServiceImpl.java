@@ -45,6 +45,7 @@ public class IdentifikasiServiceImpl implements IdentifikasiService {
                         .build())
                 .nama_risiko(ident.getNamaRisiko())
                 .jenis_risiko(ident.getJenisRisiko())
+                .uraian(ident.getUraian())
                 .kemungkinan_kecurangan(ident.getKemungkinanKecurangan())
                 .indikasi(ident.getIndikasi())
                 .kemungkinan_pihak_terkait(ident.getKemungkinanPihakTerkait())
@@ -73,6 +74,7 @@ public class IdentifikasiServiceImpl implements IdentifikasiService {
                         .build())
                 .nama_risiko("")
                 .jenis_risiko("")
+                .uraian("")
                 .kemungkinan_kecurangan("")
                 .indikasi("")
                 .kemungkinan_pihak_terkait("")
@@ -173,6 +175,7 @@ public class IdentifikasiServiceImpl implements IdentifikasiService {
                 .idRencanaKinerja(idRekin)
                 .namaRisiko(reqDTO.getNama_risiko())
                 .jenisRisiko(reqDTO.getJenis_risiko())
+                .uraian(reqDTO.getUraian())
                 .kemungkinanKecurangan(reqDTO.getKemungkinan_kecurangan())
                 .indikasi(reqDTO.getIndikasi())
                 .kemungkinanPihakTerkait(reqDTO.getKemungkinan_pihak_terkait())
@@ -195,6 +198,7 @@ public class IdentifikasiServiceImpl implements IdentifikasiService {
         // Update fields
         ident.setNamaRisiko(reqDTO.getNama_risiko());
         ident.setJenisRisiko(reqDTO.getJenis_risiko());
+        ident.setUraian(reqDTO.getUraian());
         ident.setKemungkinanKecurangan(reqDTO.getKemungkinan_kecurangan());
         ident.setIndikasi(reqDTO.getIndikasi());
         ident.setKemungkinanPihakTerkait(reqDTO.getKemungkinan_pihak_terkait());

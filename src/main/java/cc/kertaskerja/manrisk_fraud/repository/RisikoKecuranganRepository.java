@@ -8,6 +8,10 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface RisikoKecuranganRepository extends JpaRepository<RisikoKecurangan, Long> {
+
+    @Query(value = "SELECT DISTINCT jenis_risiko FROM risiko_kecurangan", nativeQuery = true)
+    List<RisikoKecurangan> findAllJenisRisiko();
+
     @Query("""
         SELECT r FROM RisikoKecurangan r
         WHERE :jenisRisiko = 'RISIKO'

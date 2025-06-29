@@ -25,6 +25,9 @@ public class IdentifikasiReqDTO {
     @NotBlank(message = "Jenis risiko tidak boleh kosong")
     private String jenis_risiko;
 
+    @NotBlank(message = "Wajib mengisi kolom uraian jenis risiko")
+    private String uraian;
+
     @NotBlank(message = "Kemungkinan kecurangan tidak boleh kosong")
     private String kemungkinan_kecurangan;
 

@@ -30,6 +30,9 @@ public class Identifikasi extends BaseAuditable {
     @Column(name = "jenis_risiko")
     private String jenisRisiko;
 
+    @Column(name = "uraian")
+    private String uraian;
+
     @Column(name = "kemungkinan_kecurangan")
     private String kemungkinanKecurangan;
 

@@ -7,8 +7,6 @@ import cc.kertaskerja.manrisk_fraud.repository.RisikoKecuranganRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -26,23 +24,27 @@ public class RisikoKecuranganServiceImpl implements RisikoKecuranganService {
 
     @Override
     public List<RisikoKecuranganDTO> findAllByJenisRisiko(String jenisRisiko) {
-        List<RisikoKecurangan> result = new ArrayList<>();
-
         if (jenisRisiko != null) {
             List<RisikoKecurangan> uraian = risikoKecuranganRepository.findByJenisRisikoFlexible(jenisRisiko);
-
             if (uraian == null || uraian.isEmpty()) {
                 throw new ResourceNotFoundException("Data uraian dengan jenis risiko '" + jenisRisiko + "' tidak ditemukan");
             }
 
-            result.addAll(uraian);
+            return uraian.stream().map(this::toDTO).toList();
         } else {
-            List<RisikoKecurangan> uraian = risikoKecuranganRepository.findAll();
+            List<RisikoKecurangan> risiko = risikoKecuranganRepository.findAll();
 
-            result.addAll(uraian);
+            return risiko.stream()
+                    .map(RisikoKecurangan::getJenisRisiko)
+                    .distinct()
+                    .map(jenisRisikoValue -> {
+                        RisikoKecuranganDTO dto = new RisikoKecuranganDTO();
+                        dto.setJenis_risiko(jenisRisikoValue);
+                        dto.setUraian(null);
+                        return dto;
+                    })
+                    .toList();
         }
-
-        return result.stream().map(this::toDTO).toList();
     }
 
     @Override
@@ -81,3 +83,5 @@ public class RisikoKecuranganServiceImpl implements RisikoKecuranganService {
         risikoKecuranganRepository.delete(risikoKecurangan);
     }
 }
+
+

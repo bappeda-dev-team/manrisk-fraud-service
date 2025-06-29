@@ -29,6 +29,7 @@ public class IdentifikasiResDTO {
 
     private String nama_risiko;
     private String jenis_risiko;
+    private String uraian;
     private String kemungkinan_kecurangan;
     private String indikasi;
     private String kemungkinan_pihak_terkait;
