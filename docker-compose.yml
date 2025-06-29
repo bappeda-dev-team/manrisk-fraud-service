@@ -3,7 +3,7 @@ version: "3.8"
 services:
   app:
     build: .
-    container_name: manajemen-risiko-app
+    container_name: manajemen-risiko-fraud
     ports:
       - "8080:8080"
     depends_on:
@@ -13,11 +13,11 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/manajemen_risiko_fraud
       SPRING_DATASOURCE_USERNAME: majapahit
       SPRING_DATASOURCE_PASSWORD: Madiun@123
-      SPRING_FLYWAY_URL: jdbc:postgresql://db:5432/manajemen_risiko_fraud
       SPRING_DATA_REDIS_HOST: redis
       SPRING_DATA_REDIS_PORT: 6379
+      SPRING_FLYWAY_URL: jdbc:postgresql://db:5432/manajemen_risiko_fraud
     networks:
-      - manajemen-risiko-network
+      - manajemen-risiko-fraud-network
 
   db:
     image: postgres:15
@@ -29,7 +29,7 @@ services:
     ports:
       - "5432:5432"
     networks:
-      - manajemen-risiko-network
+      - manajemen-risiko-fraud-network
     volumes:
       - db-data:/var/lib/postgresql/data
 
@@ -39,10 +39,10 @@ services:
     ports:
       - "6379:6379"
     networks:
-      - manajemen-risiko-network
+      - manajemen-risiko-fraud-network
 
 networks:
-  manajemen-risiko-network:
+  manajemen-risiko-fraud-network:
     driver: bridge
 
 volumes:
