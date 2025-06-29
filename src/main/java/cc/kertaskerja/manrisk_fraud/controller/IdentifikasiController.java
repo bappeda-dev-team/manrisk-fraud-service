@@ -43,9 +43,8 @@ public class IdentifikasiController {
 
     @PostMapping
     @Operation(summary = "Simpan data identifikasi baru")
-    public ResponseEntity<ApiResponse<?>> saveIdentifikasi(
-            @Valid @RequestBody IdentifikasiReqDTO reqDTO,
-            BindingResult bindingResult) {
+    public ResponseEntity<ApiResponse<?>> saveIdentifikasi(@Valid @RequestBody IdentifikasiReqDTO reqDTO,
+                                                           BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             List<String> errorMessages = bindingResult.getFieldErrors().stream()
                     .map(error -> error.getField() + ": " + error.getDefaultMessage())

@@ -47,7 +47,6 @@ public class PenangananController {
     @Operation(summary = "Simpan data Penanganan baru")
     public ResponseEntity<ApiResponse<?>> savePenanganan(@Valid @RequestBody PenangananReqDTO reqDTO,
                                                          BindingResult bindingResult) {
-
         if (bindingResult.hasErrors()) {
             List<String> errorMessages = bindingResult.getFieldErrors().stream()
                     .map(error -> error.getField() + ": " + error.getDefaultMessage())
@@ -98,8 +97,8 @@ public class PenangananController {
     @PatchMapping("/{idRekin}")
     @Operation(summary = "Verifikasi Penanganan berdasarkan ID Rencana Kinerja")
     public ResponseEntity<ApiResponse<?>> verifyPenanganan(@PathVariable String idRekin,
-                                                                 @Valid @RequestBody PenangananReqDTO.UpdateStatusDTO dto,
-                                                                 BindingResult bindingResult) {
+                                                           @Valid @RequestBody PenangananReqDTO.UpdateStatusDTO dto,
+                                                           BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             List<String> errorMessages = bindingResult.getFieldErrors().stream()
                     .map(error -> error.getField() + ": " + error.getDefaultMessage())

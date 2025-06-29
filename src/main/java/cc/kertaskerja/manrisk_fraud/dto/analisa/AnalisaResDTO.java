@@ -3,7 +3,6 @@ package cc.kertaskerja.manrisk_fraud.dto.analisa;
 import cc.kertaskerja.manrisk_fraud.dto.PegawaiInfo;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 import java.time.LocalDateTime;
