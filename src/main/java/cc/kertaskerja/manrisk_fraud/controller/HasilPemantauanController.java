@@ -3,6 +3,7 @@ package cc.kertaskerja.manrisk_fraud.controller;
 import cc.kertaskerja.manrisk_fraud.dto.ApiResponse;
 import cc.kertaskerja.manrisk_fraud.dto.hasilPemantauan.HasilPemantauanReqDTO;
 import cc.kertaskerja.manrisk_fraud.dto.hasilPemantauan.HasilPemantauanResDTO;
+import cc.kertaskerja.manrisk_fraud.helper.Authorization;
 import cc.kertaskerja.manrisk_fraud.service.hasilPemantauan.HasilPemantauanService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -21,6 +22,7 @@ import java.util.List;
 @Tag(name = "Hasil Pemantauan", description = "API Hasil Pemantauan untuk Manajemen Risiko Fraud")
 public class HasilPemantauanController {
 
+    private final Authorization authorization;
     private final HasilPemantauanService hasilPemantauanService;
 
     @GetMapping("/get-all-data/{nip}/{tahun}")
@@ -45,6 +47,8 @@ public class HasilPemantauanController {
     @Operation(summary = "Simpan data Hasil Pemantauan")
     public ResponseEntity<ApiResponse<?>> saveHasilPemantauan(@Valid @RequestBody HasilPemantauanReqDTO dto,
                                                               BindingResult bindingResult) {
+        authorization.checkCanSave(dto.getNip_pembuat());
+
         if (bindingResult.hasErrors()) {
             List<String> errorMessages = bindingResult.getFieldErrors().stream()
                     .map(error -> error.getField() + ": " + error.getDefaultMessage())
@@ -71,6 +75,8 @@ public class HasilPemantauanController {
     public ResponseEntity<ApiResponse<?>> updateHasilPemantauan(@PathVariable String idRekin,
                                                                 @Valid @RequestBody HasilPemantauanReqDTO reqDTO,
                                                                 BindingResult bindingResult) {
+        authorization.checkCanSave(reqDTO.getNip_pembuat());
+
         if (bindingResult.hasErrors()) {
             List<String> errorMessages = bindingResult.getFieldErrors().stream()
                     .map(error -> error.getField() + ": " + error.getDefaultMessage())
@@ -97,6 +103,8 @@ public class HasilPemantauanController {
     public ResponseEntity<ApiResponse<?>> verifyHasilPemantauan(@PathVariable String idRekin,
                                                                 @Valid @RequestBody HasilPemantauanReqDTO.UpdateStatusDTO reqDTO,
                                                                 BindingResult bindingResult) {
+        authorization.checkCanSave(reqDTO.getNip_verifikator());
+
         if (bindingResult.hasErrors()) {
             List<String> errorMessages = bindingResult.getFieldErrors().stream()
                     .map(error -> error.getField() + ": " + error.getDefaultMessage())

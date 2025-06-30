@@ -1,5 +1,6 @@
 package cc.kertaskerja.manrisk_fraud.service.identifikasi;
 
+import cc.kertaskerja.manrisk_fraud.dto.PegawaiInfo;
 import cc.kertaskerja.manrisk_fraud.dto.identifikasi.IdentifikasiReqDTO;
 import cc.kertaskerja.manrisk_fraud.dto.identifikasi.IdentifikasiResDTO;
 import cc.kertaskerja.manrisk_fraud.entity.Identifikasi;
@@ -7,6 +8,7 @@ import cc.kertaskerja.manrisk_fraud.enums.StatusEnum;
 import cc.kertaskerja.manrisk_fraud.exception.InternalServerException;
 import cc.kertaskerja.manrisk_fraud.exception.ResourceNotFoundException;
 import cc.kertaskerja.manrisk_fraud.repository.IdentifikasiRepository;
+import cc.kertaskerja.manrisk_fraud.service.global.PegawaiService;
 import cc.kertaskerja.manrisk_fraud.service.global.RencanaKinerjaService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -25,6 +27,7 @@ public class IdentifikasiServiceImpl implements IdentifikasiService {
 
     private final IdentifikasiRepository identifikasiRepository;
     private final RencanaKinerjaService rencanaKinerjaService;
+    private final PegawaiService pegawaiService;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     private IdentifikasiResDTO buildDTOFromRkAndIdentifikasi(JsonNode rk, Identifikasi ident) {
@@ -170,6 +173,13 @@ public class IdentifikasiServiceImpl implements IdentifikasiService {
             throw new InternalServerException("Data identifikasi already exists for id_rencana_kinerja: " + idRekin);
         }
 
+        Map<String, Object> pembuat = pegawaiService.getMappedPembuat(reqDTO.getNip_pembuat());
+
+        PegawaiInfo pegawai = PegawaiInfo.builder()
+                .nip((String) pembuat.get("nip"))
+                .nama((String) pembuat.get("nama"))
+                .build();
+
         // Step 3: Save entity
         Identifikasi ident = Identifikasi.builder()
                 .idRencanaKinerja(idRekin)
@@ -180,7 +190,7 @@ public class IdentifikasiServiceImpl implements IdentifikasiService {
                 .indikasi(reqDTO.getIndikasi())
                 .kemungkinanPihakTerkait(reqDTO.getKemungkinan_pihak_terkait())
                 .status(StatusEnum.PENDING)
-                .pembuat(reqDTO.getPembuat())
+                .pembuat(pegawai)
                 .build();
 
         Identifikasi saved = identifikasiRepository.save(ident);
@@ -192,8 +202,21 @@ public class IdentifikasiServiceImpl implements IdentifikasiService {
     @Override
     @Transactional
     public IdentifikasiResDTO updateIdentifikasi(String idRekin, IdentifikasiReqDTO reqDTO) {
+        Map<String, Object> rekinDetail = rencanaKinerjaService.getDetailRencanaKinerja(idRekin);
+        Object rkObj = rekinDetail.get("rencana_kinerja");
+
+        if (rkObj instanceof Map == false) {
+            throw new ResourceNotFoundException("Data rencana kinerja is not found");
+        }
+
         Identifikasi ident = identifikasiRepository.findOneByIdRekin(idRekin)
                 .orElseThrow(() -> new ResourceNotFoundException("Data identifikasi not found for ID Rencana Kinerja: " + idRekin));
+
+        Map<String, Object> pembuat = pegawaiService.getMappedPembuat(reqDTO.getNip_pembuat());
+        PegawaiInfo pegawai = PegawaiInfo.builder()
+                .nip((String) pembuat.get("nip"))
+                .nama((String) pembuat.get("nama"))
+                .build();
 
         // Update fields
         ident.setNamaRisiko(reqDTO.getNama_risiko());
@@ -202,6 +225,7 @@ public class IdentifikasiServiceImpl implements IdentifikasiService {
         ident.setKemungkinanKecurangan(reqDTO.getKemungkinan_kecurangan());
         ident.setIndikasi(reqDTO.getIndikasi());
         ident.setKemungkinanPihakTerkait(reqDTO.getKemungkinan_pihak_terkait());
+        ident.setPembuat(pegawai);
 
         Identifikasi updated = identifikasiRepository.save(ident);
 
@@ -218,15 +242,20 @@ public class IdentifikasiServiceImpl implements IdentifikasiService {
         Identifikasi identifikasi = identifikasiRepository.findOneByIdRekin(idRekin)
                 .orElseThrow(() -> new ResourceNotFoundException("Identifikasi not found for id_rencana_kinerja: " + idRekin));
 
+        Map<String, Object> pembuat = pegawaiService.getMappedPembuat(updateDTO.getNip_verifikator());
+        PegawaiInfo pegawai = PegawaiInfo.builder()
+                .nip((String) pembuat.get("nip"))
+                .nama((String) pembuat.get("nama"))
+                .build();
+
         try {
             StatusEnum status = StatusEnum.valueOf(updateDTO.getStatus());
             identifikasi.setStatus(status);
-            identifikasi.setVerifikator(updateDTO.getVerifikator());
+            identifikasi.setKeterangan(updateDTO.getKeterangan());
+            identifikasi.setVerifikator(pegawai);
         } catch (IllegalArgumentException e) {
             throw new ResourceNotFoundException("Invalid status value: " + updateDTO.getStatus());
         }
-
-        identifikasi.setKeterangan(updateDTO.getKeterangan());
 
         Identifikasi updated = identifikasiRepository.save(identifikasi);
 

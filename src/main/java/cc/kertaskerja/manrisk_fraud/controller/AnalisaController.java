@@ -3,6 +3,7 @@ package cc.kertaskerja.manrisk_fraud.controller;
 import cc.kertaskerja.manrisk_fraud.dto.analisa.AnalisaReqDTO;
 import cc.kertaskerja.manrisk_fraud.dto.analisa.AnalisaResDTO;
 import cc.kertaskerja.manrisk_fraud.dto.ApiResponse;
+import cc.kertaskerja.manrisk_fraud.helper.Authorization;
 import cc.kertaskerja.manrisk_fraud.service.analisa.AnalisaService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -21,6 +22,7 @@ import java.util.List;
 @Tag(name = "Analisa", description = "API Identifikasi untuk Manajemen Risiko Fraud")
 public class AnalisaController {
 
+    private final Authorization authorization;
     private final AnalisaService analisaService;
 
     @GetMapping("/get-all-data/{nip}/{tahun}")
@@ -45,6 +47,8 @@ public class AnalisaController {
     @Operation(summary = "Simpan data Analisa baru")
     public ResponseEntity<ApiResponse<?>> saveAnalisa(@Valid @RequestBody AnalisaReqDTO reqDTO,
                                                       BindingResult bindingResult) {
+        authorization.checkCanSave(reqDTO.getNip_pembuat());
+
         if (bindingResult.hasErrors()) {
             List<String> errorMessages = bindingResult.getFieldErrors().stream()
                     .map(error -> error.getField() + ": " + error.getDefaultMessage())
@@ -69,6 +73,8 @@ public class AnalisaController {
     public ResponseEntity<ApiResponse<?>> updateAnalisa(@PathVariable String idRekin,
                                                         @Valid @RequestBody AnalisaReqDTO reqDTO,
                                                         BindingResult bindingResult) {
+        authorization.checkCanSave(reqDTO.getNip_pembuat());
+
         if (bindingResult.hasErrors()) {
             List<String> errorMessages = bindingResult.getFieldErrors().stream()
                     .map(error -> error.getField() + ": " + error.getDefaultMessage())
@@ -95,6 +101,8 @@ public class AnalisaController {
     public ResponseEntity<ApiResponse<?>> updateStatusAnalisa(@PathVariable String idRekin,
                                                               @Valid @RequestBody AnalisaReqDTO.UpdateStatusDTO updateDto,
                                                               BindingResult bindingResult) {
+        authorization.checkCanSave(updateDto.getNip_verifikator());
+
         if (bindingResult.hasErrors()) {
             List<String> errorMessages = bindingResult.getFieldErrors().stream()
                     .map(error -> error.getField() + ": " + error.getDefaultMessage())

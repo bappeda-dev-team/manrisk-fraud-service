@@ -3,6 +3,7 @@ package cc.kertaskerja.manrisk_fraud.controller;
 import cc.kertaskerja.manrisk_fraud.dto.ApiResponse;
 import cc.kertaskerja.manrisk_fraud.dto.penanganan.PenangananReqDTO;
 import cc.kertaskerja.manrisk_fraud.dto.penanganan.PenangananResDTO;
+import cc.kertaskerja.manrisk_fraud.helper.Authorization;
 import cc.kertaskerja.manrisk_fraud.service.penangangan.PenangananService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -19,9 +20,11 @@ import java.util.List;
 @Tag(name = "Penanganan", description = "API Penanganan untuk Manajemen Risiko Fraud")
 public class PenangananController {
 
+    private final Authorization authorization;
     private final PenangananService penangananService;
 
-    public PenangananController(PenangananService penangananService) {
+    public PenangananController(PenangananService penangananService, Authorization authorization) {
+        this.authorization = authorization;
         this.penangananService = penangananService;
     }
 
@@ -47,6 +50,8 @@ public class PenangananController {
     @Operation(summary = "Simpan data Penanganan baru")
     public ResponseEntity<ApiResponse<?>> savePenanganan(@Valid @RequestBody PenangananReqDTO reqDTO,
                                                          BindingResult bindingResult) {
+        authorization.checkCanSave(reqDTO.getNip_pembuat());
+
         if (bindingResult.hasErrors()) {
             List<String> errorMessages = bindingResult.getFieldErrors().stream()
                     .map(error -> error.getField() + ": " + error.getDefaultMessage())
@@ -73,6 +78,8 @@ public class PenangananController {
     public ResponseEntity<ApiResponse<?>> updatePenanganan(@PathVariable String idRekin,
                                                            @Valid @RequestBody PenangananReqDTO reqDTO,
                                                            BindingResult bindingResult) {
+        authorization.checkCanSave(reqDTO.getNip_pembuat());
+
         if (bindingResult.hasErrors()) {
             List<String> errorMessages = bindingResult.getFieldErrors().stream()
                     .map(error -> error.getField() + ": " + error.getDefaultMessage())
@@ -99,6 +106,8 @@ public class PenangananController {
     public ResponseEntity<ApiResponse<?>> verifyPenanganan(@PathVariable String idRekin,
                                                            @Valid @RequestBody PenangananReqDTO.UpdateStatusDTO dto,
                                                            BindingResult bindingResult) {
+        authorization.checkCanSave(dto.getNip_verifikator());
+
         if (bindingResult.hasErrors()) {
             List<String> errorMessages = bindingResult.getFieldErrors().stream()
                     .map(error -> error.getField() + ": " + error.getDefaultMessage())

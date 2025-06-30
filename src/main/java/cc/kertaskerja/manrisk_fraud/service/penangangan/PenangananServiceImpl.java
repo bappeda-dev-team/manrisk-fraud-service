@@ -1,11 +1,13 @@
 package cc.kertaskerja.manrisk_fraud.service.penangangan;
 
+import cc.kertaskerja.manrisk_fraud.dto.PegawaiInfo;
 import cc.kertaskerja.manrisk_fraud.dto.penanganan.PenangananReqDTO;
 import cc.kertaskerja.manrisk_fraud.dto.penanganan.PenangananResDTO;
 import cc.kertaskerja.manrisk_fraud.entity.Penangangan;
 import cc.kertaskerja.manrisk_fraud.enums.StatusEnum;
 import cc.kertaskerja.manrisk_fraud.exception.ResourceNotFoundException;
 import cc.kertaskerja.manrisk_fraud.repository.PenangananRepository;
+import cc.kertaskerja.manrisk_fraud.service.global.PegawaiService;
 import cc.kertaskerja.manrisk_fraud.service.global.RencanaKinerjaService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -22,11 +24,15 @@ public class PenangananServiceImpl implements PenangananService {
 
     private final PenangananRepository penangananRepository;
     private final RencanaKinerjaService rencanaKinerjaService;
+    private final PegawaiService pegawaiService;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public PenangananServiceImpl(PenangananRepository penangananRepository, RencanaKinerjaService rencanaKinerjaService) {
+    public PenangananServiceImpl(PenangananRepository penangananRepository,
+                                 RencanaKinerjaService rencanaKinerjaService,
+                                 PegawaiService pegawaiService) {
         this.penangananRepository = penangananRepository;
         this.rencanaKinerjaService = rencanaKinerjaService;
+        this.pegawaiService = pegawaiService;
     }
 
     private PenangananResDTO buildDTOFromRkAndPenanganan(JsonNode rk, Penangangan penanganan) {
@@ -172,6 +178,12 @@ public class PenangananServiceImpl implements PenangananService {
             throw new ResourceNotFoundException("Data penanganan already exists for id_rencana_kinerja: " + idRekin);
         }
 
+        Map<String, Object> pembuat = pegawaiService.getMappedPembuat(reqDTO.getNip_pembuat());
+        PegawaiInfo pegawai = PegawaiInfo.builder()
+                .nip((String) pembuat.get("nip"))
+                .nama((String) pembuat.get("nama"))
+                .build();
+
         Penangangan penanganan = Penangangan.builder()
                 .idRencanaKinerja(idRekin)
                 .existingControl(reqDTO.getExisting_control())
@@ -181,7 +193,7 @@ public class PenangananServiceImpl implements PenangananService {
                 .targetWaktu(reqDTO.getTarget_waktu())
                 .pic(reqDTO.getPic())
                 .status(StatusEnum.PENDING)
-                .pembuat(reqDTO.getPembuat())
+                .pembuat(pegawai)
                 .build();
 
         Penangangan saved = penangananRepository.save(penanganan);
@@ -202,12 +214,19 @@ public class PenangananServiceImpl implements PenangananService {
         Penangangan penangangan = penangananRepository.findOneByIdRekin(idRekin)
                 .orElseThrow(() -> new ResourceNotFoundException("Data penanganan not found for id_rencana_kinerja: " + idRekin));
 
+        Map<String, Object> pembuat = pegawaiService.getMappedPembuat(reqDTO.getNip_pembuat());
+        PegawaiInfo pegawai = PegawaiInfo.builder()
+                .nip((String) pembuat.get("nip"))
+                .nama((String) pembuat.get("nama"))
+                .build();
+
         penangangan.setExistingControl(reqDTO.getExisting_control());
         penangangan.setJenisPerlakuanRisiko(reqDTO.getJenis_perlakuan_risiko());
         penangangan.setRencanaPerlakuanRisiko(reqDTO.getRencana_perlakuan_risiko());
         penangangan.setBiayaPerlakuanRisiko(reqDTO.getBiaya_perlakuan_risiko());
         penangangan.setTargetWaktu(reqDTO.getTarget_waktu());
         penangangan.setPic(reqDTO.getPic());
+        penangangan.setPembuat(pegawai);
 
         Penangangan updated = penangananRepository.save(penangangan);
         JsonNode rkNode = objectMapper.convertValue(rekinDetail, JsonNode.class);
@@ -221,15 +240,20 @@ public class PenangananServiceImpl implements PenangananService {
         Penangangan entity = penangananRepository.findOneByIdRekin(idRekin)
                 .orElseThrow(() -> new ResourceNotFoundException("Data penanganan not found for id_rencana_kinerja: " + idRekin));
 
+        Map<String, Object> pembuat = pegawaiService.getMappedPembuat(updateDTO.getNip_verifikator());
+        PegawaiInfo pegawai = PegawaiInfo.builder()
+                .nip((String) pembuat.get("nip"))
+                .nama((String) pembuat.get("nama"))
+                .build();
+
         try {
             StatusEnum statusEnum = StatusEnum.valueOf(updateDTO.getStatus().toUpperCase());
             entity.setStatus(statusEnum);
-            entity.setVerifikator(updateDTO.getVerifikator());
+            entity.setVerifikator(pegawai);
+            entity.setKeterangan(updateDTO.getKeterangan());
         } catch (IllegalArgumentException e) {
             throw new ResourceNotFoundException("Status tidak valid: " + updateDTO.getStatus());
         }
-
-        entity.setKeterangan(updateDTO.getKeterangan());
 
         Penangangan updated = penangananRepository.save(entity);
 

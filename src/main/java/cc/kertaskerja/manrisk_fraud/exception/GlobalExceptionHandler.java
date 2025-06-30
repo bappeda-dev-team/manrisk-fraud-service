@@ -172,6 +172,22 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
     }
 
+    // ========== 403 FORBIDDEN EXCEPTIONS ==========
+    @ExceptionHandler(ForbiddenException.class)
+    public ResponseEntity<ApiResponse<Object>> handleForbiddenException(
+            ForbiddenException ex, HttpServletRequest request) {
+
+        logger.warning("Forbidden Exception: " + ex.getMessage());
+
+        ApiResponse<Object> response = ApiResponse.error(
+                HttpStatus.FORBIDDEN.value(), // 403
+                ex.getMessage()
+        );
+
+        return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+    }
+
+
     // ========== 404 NOT FOUND EXCEPTIONS ==========
 
     @ExceptionHandler(ResourceNotFoundException.class)

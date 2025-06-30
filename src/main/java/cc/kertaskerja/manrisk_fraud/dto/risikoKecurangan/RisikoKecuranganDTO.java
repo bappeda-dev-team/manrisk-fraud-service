@@ -19,4 +19,7 @@ public class RisikoKecuranganDTO {
 
     @NotBlank(message = "Uraian risiko tidak boleh kosong!")
     private String uraian;
+
+    @NotBlank(message = "NIP pegawai wajib diisi!")
+    private String nip_pembuat;
 }

@@ -47,7 +47,6 @@ public class HasilPemantauanResDTO {
     private String level_risiko;
     private String status_hasil_pemantauan;
     private String keterangan_hasil_pemantauan;
-    private PemantauanResDTO pemantauanResDTO;
     private PegawaiInfo pembuat;
     private PegawaiInfo verifikator;
 

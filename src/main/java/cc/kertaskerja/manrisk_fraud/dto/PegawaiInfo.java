@@ -1,16 +1,14 @@
 package cc.kertaskerja.manrisk_fraud.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
+@Getter
+@Setter
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class PegawaiInfo {
-    private String nama;
     private String nip;
-    private String golongan;
+    private String nama;
 }

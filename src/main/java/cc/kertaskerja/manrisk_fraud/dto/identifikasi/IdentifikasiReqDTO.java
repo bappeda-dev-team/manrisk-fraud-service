@@ -37,10 +37,8 @@ public class IdentifikasiReqDTO {
     @NotBlank(message = "Wajib mengisi kolom kemungkinan terkait")
     private String kemungkinan_pihak_terkait;
 
-    @Valid
-    @NotNull(message = "Pegawai tidak boleh kosong!")
-    @JsonProperty("pembuat")
-    private PegawaiInfo pembuat;
+    @NotBlank(message = "Data NIP Pegawai dibutuhkan")
+    private String nip_pembuat;
 
     @Getter
     @Setter
@@ -50,9 +48,7 @@ public class IdentifikasiReqDTO {
 
         private String keterangan;
 
-        @Valid
-        @NotNull(message = "Nama pegawai verifikator tidak boleh kosong")
-        @JsonProperty("verifikator")
-        private PegawaiInfo verifikator;
+        @NotBlank(message = "NIP pegawai verifikator tidak boleh kosong")
+        private String nip_verifikator;
     }
 }

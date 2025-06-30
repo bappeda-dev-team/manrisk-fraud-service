@@ -1,11 +1,13 @@
 package cc.kertaskerja.manrisk_fraud.service.pemantauan;
 
+import cc.kertaskerja.manrisk_fraud.dto.PegawaiInfo;
 import cc.kertaskerja.manrisk_fraud.dto.pemantauan.PemantauanReqDTO;
 import cc.kertaskerja.manrisk_fraud.dto.pemantauan.PemantauanResDTO;
 import cc.kertaskerja.manrisk_fraud.entity.Pemantauan;
 import cc.kertaskerja.manrisk_fraud.enums.StatusEnum;
 import cc.kertaskerja.manrisk_fraud.exception.ResourceNotFoundException;
 import cc.kertaskerja.manrisk_fraud.repository.PemantauanRepository;
+import cc.kertaskerja.manrisk_fraud.service.global.PegawaiService;
 import cc.kertaskerja.manrisk_fraud.service.global.RencanaKinerjaService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -24,6 +26,7 @@ public class PemantauanServiceImpl implements PemantauanService {
 
     private final PemantauanRepository pemantauanRepository;
     private final RencanaKinerjaService rencanaKinerjaService;
+    private final PegawaiService pegawaiService;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     private PemantauanResDTO buildDTOFFromRkAndPemantauan(JsonNode rk, Pemantauan p) {
@@ -165,6 +168,12 @@ public class PemantauanServiceImpl implements PemantauanService {
             throw new ResourceNotFoundException("Data identifikasi already exists for id_rencana_kinerja: " + idRekin);
         }
 
+        Map<String, Object> pembuat = pegawaiService.getMappedPembuat(reqDTO.getNip_pembuat());
+        PegawaiInfo pegawai = PegawaiInfo.builder()
+                .nip((String) pembuat.get("nip"))
+                .nama((String) pembuat.get("nama"))
+                .build();
+
         Pemantauan pemantauan = Pemantauan.builder()
                 .idRencanaKinerja(idRekin)
                 .pemilikRisiko(reqDTO.getPemilik_risiko())
@@ -178,7 +187,7 @@ public class PemantauanServiceImpl implements PemantauanService {
                 .kendala(reqDTO.getKendala())
                 .catatan(reqDTO.getCatatan())
                 .status(StatusEnum.PENDING)
-                .pembuat(reqDTO.getPembuat())
+                .pembuat(pegawai)
                 .build();
 
         Pemantauan saved = pemantauanRepository.save(pemantauan);
@@ -196,6 +205,12 @@ public class PemantauanServiceImpl implements PemantauanService {
             throw new ResourceNotFoundException("Data rencana kinerja is not found");
         }
 
+        Map<String, Object> pembuat = pegawaiService.getMappedPembuat(reqDTO.getNip_pembuat());
+        PegawaiInfo pegawai = PegawaiInfo.builder()
+                .nip((String) pembuat.get("nip"))
+                .nama((String) pembuat.get("nama"))
+                .build();
+
         Pemantauan pemantauan = pemantauanRepository.findOneByIdRekin(idRekin)
                 .orElseThrow(() -> new ResourceNotFoundException("Data identifikasi not found for id_rencana_kinerja: " + idRekin));
 
@@ -209,7 +224,7 @@ public class PemantauanServiceImpl implements PemantauanService {
         pemantauan.setBuktiPelaksanaanTindakLanjut(reqDTO.getBukti_pelaksanaan_tindak_lanjut());
         pemantauan.setKendala(reqDTO.getKendala());
         pemantauan.setCatatan(reqDTO.getCatatan());
-        pemantauan.setPembuat(reqDTO.getPembuat());
+        pemantauan.setPembuat(pegawai);
 
         Pemantauan updated = pemantauanRepository.save(pemantauan);
         JsonNode rkNode = objectMapper.convertValue(rkObj, JsonNode.class);
@@ -223,15 +238,20 @@ public class PemantauanServiceImpl implements PemantauanService {
         Pemantauan entity = pemantauanRepository.findOneByIdRekin(idRekin)
                 .orElseThrow(() -> new ResourceNotFoundException("Data identifikasi not found for id_rencana_kinerja: " + idRekin));
 
+        Map<String, Object> pembuat = pegawaiService.getMappedPembuat(updateDTO.getNip_verifikator());
+        PegawaiInfo pegawai = PegawaiInfo.builder()
+                .nip((String) pembuat.get("nip"))
+                .nama((String) pembuat.get("nama"))
+                .build();
+
         try {
             StatusEnum status = StatusEnum.valueOf(updateDTO.getStatus());
             entity.setStatus(status);
+            entity.setKeterangan(updateDTO.getKeterangan());
+            entity.setVerifikator(pegawai);
         } catch (IllegalArgumentException e) {
             throw new ResourceNotFoundException("Invalid status value: " + updateDTO.getStatus());
         }
-
-        entity.setKeterangan(updateDTO.getKeterangan());
-        entity.setVerifikator(updateDTO.getVerifikator());
 
         Pemantauan updated = pemantauanRepository.save(entity);
 

@@ -3,6 +3,7 @@ package cc.kertaskerja.manrisk_fraud.controller;
 import cc.kertaskerja.manrisk_fraud.dto.ApiResponse;
 import cc.kertaskerja.manrisk_fraud.dto.identifikasi.IdentifikasiReqDTO;
 import cc.kertaskerja.manrisk_fraud.dto.identifikasi.IdentifikasiResDTO;
+import cc.kertaskerja.manrisk_fraud.helper.Authorization;
 import cc.kertaskerja.manrisk_fraud.service.identifikasi.IdentifikasiService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -21,6 +22,7 @@ import java.util.List;
 @Tag(name = "Identifikasi", description = "API Identifikasi untuk Manajemen Risiko Fraud")
 public class IdentifikasiController {
 
+    private final Authorization authorization;
     private final IdentifikasiService identifikasiService;
 
     @GetMapping("/get-all-data/{nip}/{tahun}")
@@ -45,6 +47,8 @@ public class IdentifikasiController {
     @Operation(summary = "Simpan data identifikasi baru")
     public ResponseEntity<ApiResponse<?>> saveIdentifikasi(@Valid @RequestBody IdentifikasiReqDTO reqDTO,
                                                            BindingResult bindingResult) {
+        authorization.checkCanSave(reqDTO.getNip_pembuat());
+
         if (bindingResult.hasErrors()) {
             List<String> errorMessages = bindingResult.getFieldErrors().stream()
                     .map(error -> error.getField() + ": " + error.getDefaultMessage())
@@ -70,6 +74,8 @@ public class IdentifikasiController {
     public ResponseEntity<ApiResponse<?>> updateIdentifikasi(@PathVariable String idRekin,
                                                              @Valid @RequestBody IdentifikasiReqDTO reqDTO,
                                                              BindingResult bindingResult) {
+        authorization.checkCanSave(reqDTO.getNip_pembuat());
+
         if (bindingResult.hasErrors()) {
             List<String> errorMessages = bindingResult.getFieldErrors().stream()
                     .map(error -> error.getField() + ": " + error.getDefaultMessage())
@@ -96,6 +102,8 @@ public class IdentifikasiController {
     public ResponseEntity<ApiResponse<?>> verifyIdentifikasi(@PathVariable String idRekin,
                                                              @Valid @RequestBody IdentifikasiReqDTO.UpdateStatusDTO reqDTO,
                                                              BindingResult bindingResult) {
+        authorization.checkCanSave(reqDTO.getNip_verifikator());
+
         if (bindingResult.hasErrors()) {
             List<String> errorMessages = bindingResult.getFieldErrors().stream()
                     .map(error -> error.getField() + ": " + error.getDefaultMessage())

@@ -1,30 +1,36 @@
 package cc.kertaskerja.manrisk_fraud.service.analisa;
 
+import cc.kertaskerja.manrisk_fraud.dto.PegawaiInfo;
 import cc.kertaskerja.manrisk_fraud.dto.analisa.AnalisaReqDTO;
 import cc.kertaskerja.manrisk_fraud.dto.analisa.AnalisaResDTO;
 import cc.kertaskerja.manrisk_fraud.entity.Analisa;
 import cc.kertaskerja.manrisk_fraud.enums.StatusEnum;
 import cc.kertaskerja.manrisk_fraud.exception.InternalServerException;
 import cc.kertaskerja.manrisk_fraud.exception.ResourceNotFoundException;
+import cc.kertaskerja.manrisk_fraud.helper.Authorization;
 import cc.kertaskerja.manrisk_fraud.repository.AnalisaRepository;
+import cc.kertaskerja.manrisk_fraud.service.global.PegawaiService;
 import cc.kertaskerja.manrisk_fraud.service.global.RencanaKinerjaService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AnalisaServiceImpl implements AnalisaService {
 
     private final AnalisaRepository analisaRepository;
     private final RencanaKinerjaService rencanaKinerjaService;
+    private final PegawaiService pegawaiService;
     private final ObjectMapper objectMapper;
 
     private AnalisaResDTO buildTOFFromRkAndAnalisa(JsonNode rk, Analisa analisa) {
@@ -59,30 +65,30 @@ public class AnalisaServiceImpl implements AnalisaService {
 
     private AnalisaResDTO buildTOFFromRkOnly(JsonNode rk) {
         return AnalisaResDTO.builder()
-                    .id(null)
-                    .id_rencana_kinerja(rk.path("id_rencana_kinerja").asText())
-                    .id_pohon(rk.path("id_pohon").asInt())
-                    .nama_pohon(rk.path("nama_pohon").asText())
-                    .level_pohon(rk.path("level_pohon").asInt())
-                    .nama_rencana_kinerja(rk.path("nama_rencana_kinerja").asText())
-                    .tahun(rk.path("tahun").asText())
-                    .status_rencana_kinerja(rk.path("status_rencana_kinerja").asText())
-                    .pegawai_id(rk.path("pegawai_id").asText())
-                    .nama_pegawai(rk.path("nama_pegawai").asText())
-                    .operasional_daerah(AnalisaResDTO.OperasionalDaerah.builder()
-                            .kode_opd(rk.path("operasional_daerah").path("kode_opd").asText())
-                            .nama_opd(rk.path("operasional_daerah").path("nama_opd").asText())
-                            .build())
-                    .nama_risiko("")
-                    .penyebab("")
-                    .akibat("")
-                    .skala_dampak(0)
-                    .skala_kemungkinan(0)
+                .id(null)
+                .id_rencana_kinerja(rk.path("id_rencana_kinerja").asText())
+                .id_pohon(rk.path("id_pohon").asInt())
+                .nama_pohon(rk.path("nama_pohon").asText())
+                .level_pohon(rk.path("level_pohon").asInt())
+                .nama_rencana_kinerja(rk.path("nama_rencana_kinerja").asText())
+                .tahun(rk.path("tahun").asText())
+                .status_rencana_kinerja(rk.path("status_rencana_kinerja").asText())
+                .pegawai_id(rk.path("pegawai_id").asText())
+                .nama_pegawai(rk.path("nama_pegawai").asText())
+                .operasional_daerah(AnalisaResDTO.OperasionalDaerah.builder()
+                        .kode_opd(rk.path("operasional_daerah").path("kode_opd").asText())
+                        .nama_opd(rk.path("operasional_daerah").path("nama_opd").asText())
+                        .build())
+                .nama_risiko("")
+                .penyebab("")
+                .akibat("")
+                .skala_dampak(0)
+                .skala_kemungkinan(0)
                 .tingkat_risiko(0)
                 .level_risiko("")
-                    .status("")
-                    .keterangan("")
-                    .build();
+                .status("")
+                .keterangan("")
+                .build();
     }
 
     @Override
@@ -157,18 +163,19 @@ public class AnalisaServiceImpl implements AnalisaService {
             throw new InternalServerException("Data identifikasi already exists for id_rencana_kinerja: " + idRekin);
         }
 
+        Map<String, Object> pembuat = pegawaiService.getMappedPembuat(reqDTO.getNip_pembuat());
+        PegawaiInfo pegawai = PegawaiInfo.builder()
+                .nip((String) pembuat.get("nip"))
+                .nama((String) pembuat.get("nama"))
+                .build();
+
         int tingkatRisiko = reqDTO.getSkala_dampak() * reqDTO.getSkala_kemungkinan();
 
-        String levelRisiko;
-        if (tingkatRisiko >= 1 && tingkatRisiko <= 4) {
-            levelRisiko = "Rendah";
-        } else if (tingkatRisiko >= 5 && tingkatRisiko <= 12) {
-            levelRisiko = "Menengah";
-        } else if (tingkatRisiko >= 15 && tingkatRisiko <= 25) {
-            levelRisiko = "Tinggi";
-        } else {
-            levelRisiko = "-";
-        }
+        String levelRisiko =
+                (tingkatRisiko >= 1 && tingkatRisiko <= 4)  ? "Rendah" :
+                        (tingkatRisiko >= 5 && tingkatRisiko <= 12) ? "Menengah" :
+                                (tingkatRisiko >= 15 && tingkatRisiko <= 25) ? "Tinggi" : "-";
+
 
         Analisa analisa = Analisa.builder()
                 .idRencanaKinerja(idRekin)
@@ -180,7 +187,7 @@ public class AnalisaServiceImpl implements AnalisaService {
                 .tingkatRisiko(tingkatRisiko)
                 .levelRisiko(levelRisiko)
                 .status(StatusEnum.PENDING)
-                .pembuat(reqDTO.getPembuat())
+                .pembuat(pegawai)
                 .build();
 
         Analisa saved = analisaRepository.save(analisa);
@@ -201,18 +208,17 @@ public class AnalisaServiceImpl implements AnalisaService {
         Analisa analisa = analisaRepository.findOneByIdRekin(idRekin)
                 .orElseThrow(() -> new ResourceNotFoundException("Data identifikasi not found for ID Rencana Kinerja: " + idRekin));
 
+        Map<String, Object> pembuat = pegawaiService.getMappedPembuat(reqDTO.getNip_pembuat());
+        PegawaiInfo pegawai = PegawaiInfo.builder()
+                .nip((String) pembuat.get("nip"))
+                .nama((String) pembuat.get("nama"))
+                .build();
+
         int tingkatRisiko = reqDTO.getSkala_dampak() * reqDTO.getSkala_kemungkinan();
 
-        String levelRisiko;
-        if (tingkatRisiko >= 1 && tingkatRisiko <= 4) {
-            levelRisiko = "Rendah";
-        } else if (tingkatRisiko >= 5 && tingkatRisiko <= 12) {
-            levelRisiko = "Menengah";
-        } else if (tingkatRisiko >= 15 && tingkatRisiko <= 25) {
-            levelRisiko = "Tinggi";
-        } else {
-            levelRisiko = "-";
-        }
+        String levelRisiko = (tingkatRisiko >= 1 && tingkatRisiko <= 4) ? "Rendah" :
+                (tingkatRisiko >= 5 && tingkatRisiko <= 12) ? "Menengah" :
+                        (tingkatRisiko >= 15 && tingkatRisiko <= 25) ? "Tinggi" : "-";
 
         analisa.setNamaRisiko(reqDTO.getNama_risiko());
         analisa.setPenyebab(reqDTO.getPenyebab());
@@ -221,7 +227,7 @@ public class AnalisaServiceImpl implements AnalisaService {
         analisa.setSkalaKemungkinan(reqDTO.getSkala_kemungkinan());
         analisa.setTingkatRisiko(tingkatRisiko);
         analisa.setLevelRisiko(levelRisiko);
-        analisa.setPembuat(reqDTO.getPembuat());
+        analisa.setPembuat(pegawai);
 
         Analisa updated = analisaRepository.save(analisa);
 
@@ -237,15 +243,20 @@ public class AnalisaServiceImpl implements AnalisaService {
         Analisa entity = analisaRepository.findOneByIdRekin(idRekin)
                 .orElseThrow(() -> new ResourceNotFoundException("Data identifikasi not found for ID Rencana Kinerja: " + idRekin));
 
+        Map<String, Object> pembuat = pegawaiService.getMappedPembuat(updateDTO.getNip_verifikator());
+        PegawaiInfo pegawai = PegawaiInfo.builder()
+                .nip((String) pembuat.get("nip"))
+                .nama((String) pembuat.get("nama"))
+                .build();
+
         try {
             StatusEnum status = StatusEnum.valueOf(updateDTO.getStatus());
             entity.setStatus(status);
-            entity.setVerifikator(updateDTO.getVerifikator());
+            entity.setVerifikator(pegawai);
+            entity.setKeterangan(updateDTO.getKeterangan());
         } catch (IllegalArgumentException e) {
             throw new ResourceNotFoundException("Invalid status value: " + updateDTO.getStatus());
         }
-
-        entity.setKeterangan(updateDTO.getKeterangan());
 
         Analisa updated = analisaRepository.save(entity);
 
@@ -262,6 +273,7 @@ public class AnalisaServiceImpl implements AnalisaService {
     }
 
     @Override
+    @Transactional
     public void deleteAnalisa(String idRekin) {
         Analisa analisa = analisaRepository.findOneByIdRekin(idRekin)
                 .orElseThrow(() -> new ResourceNotFoundException("Identifikasi not found for id_rencana_kinerja: " + idRekin));
