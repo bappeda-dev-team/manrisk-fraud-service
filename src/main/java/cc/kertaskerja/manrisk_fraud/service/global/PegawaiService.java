@@ -16,9 +16,4 @@ public class PegawaiService {
 
     @Value("${external.rekin.base-url}")
     private String baseUrl;
-
-    public Map<String, Object> getPegawaiDetail(String nip) {
-        String token = accessToken.getAccessToken();
-        String url
-    }
 }
