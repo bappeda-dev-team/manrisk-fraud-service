@@ -49,7 +49,7 @@ public class PegawaiService {
         }
     }
 
-    public Map<String, Object> getMappedPembuat(String nip) {
+    public Map<String, Object> getMappedPegawai(String nip) {
         Map<String, Object> pegawai = getPegawaiDetail(nip);
         JsonNode rkNode = objectMapper.convertValue(pegawai, JsonNode.class);
         JsonNode data = rkNode.get("data");

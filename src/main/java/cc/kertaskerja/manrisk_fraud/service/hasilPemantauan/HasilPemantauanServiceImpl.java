@@ -218,7 +218,7 @@ public class HasilPemantauanServiceImpl implements HasilPemantauanService {
             throw new ResourceNotFoundException("Data hasil pemantauan already exists for id_rencana_kinerja: " + idRekin);
         }
 
-        Map<String, Object> pembuat = pegawaiService.getMappedPembuat(Crypto.decrypt(dto.getNip_pembuat()));
+        Map<String, Object> pembuat = pegawaiService.getMappedPegawai(Crypto.decrypt(dto.getNip_pembuat()));
         String nipPembuat = (String) pembuat.get("nip");
         String namaPembuat = (String) pembuat.get("nama");
         PegawaiInfo pegawai = PegawaiInfo.builder()
@@ -276,7 +276,7 @@ public class HasilPemantauanServiceImpl implements HasilPemantauanService {
             throw new ResourceNotFoundException("YOUR UPDATED: ID Rencana Kinerja " + dto.getId_rencana_kinerja() + " is not valid");
         }
 
-        Map<String, Object> pembuat = pegawaiService.getMappedPembuat(Crypto.decrypt(dto.getNip_pembuat()));
+        Map<String, Object> pembuat = pegawaiService.getMappedPegawai(Crypto.decrypt(dto.getNip_pembuat()));
         String nipPembuat = (String) pembuat.get("nip");
         String namaPembuat = (String) pembuat.get("nama");
         PegawaiInfo pegawai = PegawaiInfo.builder()
@@ -308,7 +308,7 @@ public class HasilPemantauanServiceImpl implements HasilPemantauanService {
         HasilPemantauan hp = hpRepository.findOneByIdRekin(idRekin)
                 .orElseThrow(() -> new ResourceNotFoundException("Data Hasil Pemantauan not found for id_rencana_kinerja: " + idRekin));
 
-        Map<String, Object> verifikator = pegawaiService.getMappedPembuat(Crypto.decrypt(updateDTO.getNip_verifikator()));
+        Map<String, Object> verifikator = pegawaiService.getMappedPegawai(Crypto.decrypt(updateDTO.getNip_verifikator()));
         String nipVerifikator = (String) verifikator.get("nip");
         String namaVerifikator = (String) verifikator.get("nama");
         PegawaiInfo pegawai = PegawaiInfo.builder()

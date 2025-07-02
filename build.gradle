@@ -37,6 +37,7 @@ dependencies {
 	implementation 'org.postgresql:postgresql:42.7.3'
 	implementation 'org.flywaydb:flyway-core'
 	implementation 'org.flywaydb:flyway-database-postgresql'
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	compileOnly 'org.projectlombok:lombok'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	runtimeOnly 'org.postgresql:postgresql'
@@ -48,4 +49,25 @@ dependencies {
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+bootBuildImage {
+	imageName = "${project.name}"
+	environment = ["BP_JVM_VERSION" : "21.*"]
+
+	if (System.getProperty( "os.arch" ).toLowerCase().startsWith('aarch')) {
+		builder = "paketobuildpacks/builder-jammy-buildpackless-tiny"
+		buildpacks = [ "docker.io/paketobuildpacks/java" ]
+	} else {
+		builder = "docker.io/paketobuildpacks/builder-jammy-tiny"
+	}
+
+
+	docker {
+		publishRegistry {
+			username = project.findProperty("registryUsername")
+			password = project.findProperty("registryToken")
+			url = project.findProperty("registryUrl")
+		}
+	}
 }
