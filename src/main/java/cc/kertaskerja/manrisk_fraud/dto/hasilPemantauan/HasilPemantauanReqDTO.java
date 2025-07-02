@@ -1,10 +1,6 @@
 package cc.kertaskerja.manrisk_fraud.dto.hasilPemantauan;
 
-import cc.kertaskerja.manrisk_fraud.dto.PegawaiInfo;
-import cc.kertaskerja.manrisk_fraud.dto.pemantauan.PemantauanResDTO;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -32,10 +28,8 @@ public class HasilPemantauanReqDTO {
     @Max(value = 5, message = "Skala kemungkinan maksimal 5")
     private Integer skala_kemungkinan;
 
-    @Valid
-    @NotNull(message = "Pegawai tidak boleh kosong!")
-    @JsonProperty("pembuat")
-    private PegawaiInfo pembuat;
+    @NotBlank(message = "Data NIP Pegawai dibutuhkan")
+    private String nip_pembuat;
 
     @Getter
     @Setter
@@ -45,9 +39,7 @@ public class HasilPemantauanReqDTO {
 
         private String keterangan;
 
-        @Valid
-        @NotNull(message = "Nama pegawai verifikator tidak boleh kosong")
-        @JsonProperty("verifikator")
-        private PegawaiInfo verifikator;
+        @NotBlank(message = "NIP pegawai verifikator tidak boleh kosong")
+        private String nip_verifikator;
     }
 }

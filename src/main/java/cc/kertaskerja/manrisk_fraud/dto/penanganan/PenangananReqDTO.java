@@ -1,11 +1,7 @@
 package cc.kertaskerja.manrisk_fraud.dto.penanganan;
 
-import cc.kertaskerja.manrisk_fraud.dto.PegawaiInfo;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 @Getter
@@ -37,10 +33,8 @@ public class PenangananReqDTO {
     @NotBlank(message = "PIC wajib diisi!")
     private String pic;
 
-    @Valid
-    @NotNull(message = "Pegawai tidak boleh kosong!")
-    @JsonProperty("pembuat")
-    private PegawaiInfo pembuat;
+    @NotBlank(message = "Data NIP Pegawai dibutuhkan")
+    private String nip_pembuat;
 
     @Getter
     @Setter
@@ -50,9 +44,7 @@ public class PenangananReqDTO {
 
         private String keterangan;
 
-        @Valid
-        @NotNull(message = "Nama pegawai verifikator tidak boleh kosong")
-        @JsonProperty("verifikator")
-        private PegawaiInfo verifikator;
+        @NotBlank(message = "NIP pegawai verifikator tidak boleh kosong")
+        private String nip_verifikator;
     }
 }

@@ -2,6 +2,7 @@ package cc.kertaskerja.manrisk_fraud.controller;
 
 import cc.kertaskerja.manrisk_fraud.dto.ApiResponse;
 import cc.kertaskerja.manrisk_fraud.dto.risikoKecurangan.RisikoKecuranganDTO;
+import cc.kertaskerja.manrisk_fraud.helper.Authorization;
 import cc.kertaskerja.manrisk_fraud.service.risikoKecurangan.RisikoKecuranganService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -20,6 +21,7 @@ import java.util.List;
 @Tag(name = "Risiko Kecurangan", description = "Kolom CRUD Risiko Kecurangan (*ADMIN)")
 public class RisikoKecuranganController {
 
+    private final Authorization authorization;
     private final RisikoKecuranganService risikoKecuranganService;
 
     @GetMapping
@@ -34,6 +36,8 @@ public class RisikoKecuranganController {
     @Operation(summary = "Tambah jenis risiko beserta uraian")
     public ResponseEntity<ApiResponse<?>> saveRisikoKecurangan(@Valid @RequestBody RisikoKecuranganDTO dto,
                                                                BindingResult bindingResult) {
+        authorization.adminOnly(dto.getNip_pembuat());
+
         if (bindingResult.hasErrors()) {
             List<String> errorMessages = bindingResult.getFieldErrors().stream()
                     .map(error -> error.getField() + ": " + error.getDefaultMessage())
@@ -60,6 +64,8 @@ public class RisikoKecuranganController {
     public ResponseEntity<ApiResponse<?>> updateRisikoKecurangan(@PathVariable Long id,
                                                                  @Valid @RequestBody RisikoKecuranganDTO dto,
                                                                  BindingResult bindingResult) {
+        authorization.adminOnly(dto.getNip_pembuat());
+
         if (bindingResult.hasErrors()) {
             List<String> errorMessages = bindingResult.getFieldErrors().stream()
                     .map(error -> error.getField() + ": " + error.getDefaultMessage())
@@ -81,9 +87,12 @@ public class RisikoKecuranganController {
         return ResponseEntity.ok(ApiResponse.success(result, "Updated successfully"));
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{id}/{nip}")
     @Operation(summary = "Hapus data Risiko Kecurangan berdasarkan ID")
-    public ResponseEntity<ApiResponse<String>> deleteRisikoKecurangan(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<String>> deleteRisikoKecurangan(@PathVariable Long id,
+                                                                      @PathVariable String nip) {
+        authorization.adminOnly(nip);
+
         risikoKecuranganService.delete(id);
 
         return ResponseEntity.ok(ApiResponse.success("Risiko Kecurangan ", "Deleted successfully"));

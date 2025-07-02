@@ -3,6 +3,7 @@ package cc.kertaskerja.manrisk_fraud.controller;
 import cc.kertaskerja.manrisk_fraud.dto.ApiResponse;
 import cc.kertaskerja.manrisk_fraud.dto.pemantauan.PemantauanReqDTO;
 import cc.kertaskerja.manrisk_fraud.dto.pemantauan.PemantauanResDTO;
+import cc.kertaskerja.manrisk_fraud.helper.Authorization;
 import cc.kertaskerja.manrisk_fraud.service.pemantauan.PemantauanService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -21,6 +22,7 @@ import java.util.List;
 @Tag(name = "Pemantauan", description = "API Pemantauan untuk Manajemen Risiko Fraud")
 public class PemantauanController {
 
+    private final Authorization authorization;
     private final PemantauanService pemantauanService;
 
     @GetMapping("/get-all-data/{nip}/{tahun}")
@@ -45,6 +47,8 @@ public class PemantauanController {
     @Operation(summary = "Simpan data Pemantauan RTP baru")
     public ResponseEntity<ApiResponse<?>> savePemantauan(@Valid @RequestBody PemantauanReqDTO dto,
                                                          BindingResult bindingResult) {
+        authorization.checkCanSave(dto.getNip_pembuat());
+
         if (bindingResult.hasErrors()) {
             List<String> errorMessages = bindingResult.getFieldErrors().stream()
                     .map(error -> error.getField() + ": " + error.getDefaultMessage())
@@ -71,6 +75,8 @@ public class PemantauanController {
     public ResponseEntity<ApiResponse<?>> updatePemantauan(@PathVariable String idRekin,
                                                            @Valid @RequestBody PemantauanReqDTO dto,
                                                            BindingResult bindingResult) {
+        authorization.checkCanSave(dto.getNip_pembuat());
+
         if (bindingResult.hasErrors()) {
             List<String> errorMessages = bindingResult.getFieldErrors().stream()
                     .map(error -> error.getField() + ": " + error.getDefaultMessage())
@@ -97,6 +103,8 @@ public class PemantauanController {
     public ResponseEntity<ApiResponse<?>> updateStatusPemantauan(@PathVariable String idRekin,
                                                                  @Valid @RequestBody PemantauanReqDTO.UpdateStatusDTO dto,
                                                                  BindingResult bindingResult) {
+        authorization.checkCanSave(dto.getNip_verifikator());
+
         if (bindingResult.hasErrors()) {
             List<String> errorMessages = bindingResult.getFieldErrors().stream()
                     .map(error -> error.getField() + ": " + error.getDefaultMessage())
