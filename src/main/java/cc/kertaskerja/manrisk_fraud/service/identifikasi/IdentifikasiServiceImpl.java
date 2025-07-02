@@ -7,6 +7,7 @@ import cc.kertaskerja.manrisk_fraud.entity.Identifikasi;
 import cc.kertaskerja.manrisk_fraud.enums.StatusEnum;
 import cc.kertaskerja.manrisk_fraud.exception.InternalServerException;
 import cc.kertaskerja.manrisk_fraud.exception.ResourceNotFoundException;
+import cc.kertaskerja.manrisk_fraud.helper.Crypto;
 import cc.kertaskerja.manrisk_fraud.repository.IdentifikasiRepository;
 import cc.kertaskerja.manrisk_fraud.service.global.PegawaiService;
 import cc.kertaskerja.manrisk_fraud.service.global.RencanaKinerjaService;
@@ -83,20 +84,21 @@ public class IdentifikasiServiceImpl implements IdentifikasiService {
                 .kemungkinan_pihak_terkait("")
                 .status("")
                 .keterangan("")
-                .created_at(null)
-                .updated_at(null)
                 .build();
     }
 
-
     @Override
     public List<IdentifikasiResDTO> findAllIdentifikasi(String nip, String tahun) {
+        if (!Crypto.isEncrypted(nip)) {
+            throw new ResourceNotFoundException("NIP is not encrypted: " + nip);
+        }
+
         // Step 1: Call external API via RencanaKinerjaService
-        Map<String, Object> eksternalResponse = rencanaKinerjaService.getRencanaKinerja(nip, tahun);
+        Map<String, Object> eksternalResponse = rencanaKinerjaService.getRencanaKinerja(Crypto.decrypt(nip), tahun);
         Object rkObj = eksternalResponse.get("rencana_kinerja");
 
         if (!(rkObj instanceof List<?> rkList)) {
-            throw new ResourceNotFoundException("No 'Rencana Kinerja' data found for NIP: " + nip + " and year: " + tahun);
+            throw new ResourceNotFoundException("No 'Rencana Kinerja' data found for NIP: " + Crypto.decrypt(nip) + " and year: " + tahun);
         }
 
         List<Map<String, Object>> rekinList = (List<Map<String, Object>>) rkList;
@@ -173,11 +175,12 @@ public class IdentifikasiServiceImpl implements IdentifikasiService {
             throw new InternalServerException("Data identifikasi already exists for id_rencana_kinerja: " + idRekin);
         }
 
-        Map<String, Object> pembuat = pegawaiService.getMappedPembuat(reqDTO.getNip_pembuat());
-
+        Map<String, Object> pembuat = pegawaiService.getMappedPembuat(Crypto.decrypt(reqDTO.getNip_pembuat()));
+        String nipPembuat = (String) pembuat.get("nip");
+        String namaPembuat = (String) pembuat.get("nama");
         PegawaiInfo pegawai = PegawaiInfo.builder()
-                .nip((String) pembuat.get("nip"))
-                .nama((String) pembuat.get("nama"))
+                .nip(Crypto.encrypt(nipPembuat))
+                .nama(namaPembuat)
                 .build();
 
         // Step 3: Save entity
@@ -212,13 +215,23 @@ public class IdentifikasiServiceImpl implements IdentifikasiService {
         Identifikasi ident = identifikasiRepository.findOneByIdRekin(idRekin)
                 .orElseThrow(() -> new ResourceNotFoundException("Data identifikasi not found for ID Rencana Kinerja: " + idRekin));
 
-        Map<String, Object> pembuat = pegawaiService.getMappedPembuat(reqDTO.getNip_pembuat());
+        Map<String, Object> checkIdRekinUpdated = rencanaKinerjaService.getDetailRencanaKinerja(reqDTO.getId_rencana_kinerja());
+        Object checkIdRekinUpdatedObj = checkIdRekinUpdated.get("rencana_kinerja");
+
+        if (checkIdRekinUpdatedObj instanceof Map == false) {
+            throw new ResourceNotFoundException("YOUR UPDATED: ID Rencana Kinerja " + reqDTO.getId_rencana_kinerja() + " is not valid");
+        }
+
+        Map<String, Object> pembuat = pegawaiService.getMappedPembuat(Crypto.decrypt(reqDTO.getNip_pembuat()));
+        String nipPembuat = (String) pembuat.get("nip");
+        String namaPembuat = (String) pembuat.get("nama");
         PegawaiInfo pegawai = PegawaiInfo.builder()
-                .nip((String) pembuat.get("nip"))
-                .nama((String) pembuat.get("nama"))
+                .nip(Crypto.encrypt(nipPembuat))
+                .nama(namaPembuat)
                 .build();
 
         // Update fields
+        ident.setIdRencanaKinerja(reqDTO.getId_rencana_kinerja());
         ident.setNamaRisiko(reqDTO.getNama_risiko());
         ident.setJenisRisiko(reqDTO.getJenis_risiko());
         ident.setUraian(reqDTO.getUraian());
@@ -242,10 +255,12 @@ public class IdentifikasiServiceImpl implements IdentifikasiService {
         Identifikasi identifikasi = identifikasiRepository.findOneByIdRekin(idRekin)
                 .orElseThrow(() -> new ResourceNotFoundException("Identifikasi not found for id_rencana_kinerja: " + idRekin));
 
-        Map<String, Object> pembuat = pegawaiService.getMappedPembuat(updateDTO.getNip_verifikator());
+        Map<String, Object> verifikator = pegawaiService.getMappedPembuat(Crypto.decrypt(updateDTO.getNip_verifikator()));
+        String nipVerifikator = (String) verifikator.get("nip");
+        String namaVerifikator = (String) verifikator.get("nama");
         PegawaiInfo pegawai = PegawaiInfo.builder()
-                .nip((String) pembuat.get("nip"))
-                .nama((String) pembuat.get("nama"))
+                .nip(Crypto.encrypt(nipVerifikator))
+                .nama(namaVerifikator)
                 .build();
 
         try {

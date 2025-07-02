@@ -7,6 +7,7 @@ import cc.kertaskerja.manrisk_fraud.entity.HasilPemantauan;
 import cc.kertaskerja.manrisk_fraud.entity.Pemantauan;
 import cc.kertaskerja.manrisk_fraud.enums.StatusEnum;
 import cc.kertaskerja.manrisk_fraud.exception.ResourceNotFoundException;
+import cc.kertaskerja.manrisk_fraud.helper.Crypto;
 import cc.kertaskerja.manrisk_fraud.repository.HasilPemantauanRepository;
 import cc.kertaskerja.manrisk_fraud.repository.PemantauanRepository;
 import cc.kertaskerja.manrisk_fraud.service.global.PegawaiService;
@@ -110,11 +111,15 @@ public class HasilPemantauanServiceImpl implements HasilPemantauanService {
 
     @Override
     public List<HasilPemantauanResDTO> findAll(String nip, String tahun) {
-        Map<String, Object> rekin = rencanaKinerjaService.getRencanaKinerja(nip, tahun);
+        if (!Crypto.isEncrypted(nip)) {
+            throw new ResourceNotFoundException("NIP is not encrypted: " + Crypto.decrypt(nip));
+        }
+
+        Map<String, Object> rekin = rencanaKinerjaService.getRencanaKinerja(Crypto.decrypt(nip), tahun);
         Object rkObj = rekin.get("rencana_kinerja");
 
         if (!(rkObj instanceof List)) {
-            throw new ResourceNotFoundException("No 'Rencana Kinerja' data found for NIP: " + nip + " and year: " + tahun);
+            throw new ResourceNotFoundException("No 'Rencana Kinerja' data found for NIP: " + Crypto.decrypt(nip) + " and year: " + tahun);
         }
 
         List<Map<String, Object>> rekinList = (List<Map<String, Object>>) rkObj;
@@ -157,8 +162,6 @@ public class HasilPemantauanServiceImpl implements HasilPemantauanService {
                     }
                 }
             }
-
-            // If there's no Pemantauan, skip. (Do not add anything)
         }
 
         return result;
@@ -198,10 +201,6 @@ public class HasilPemantauanServiceImpl implements HasilPemantauanService {
             throw new ResourceNotFoundException("id_rencana_kinerja is required");
         }
 
-        if (idRekin == null || idRekin.isBlank()) {
-            throw new IllegalArgumentException("idRekin tidak boleh null/empty");
-        }
-
         Map<String, Object> rekinDetail = rekinService.getDetailRencanaKinerja(idRekin);
         Object rkObj = rekinDetail.get("rencana_kinerja");
 
@@ -219,10 +218,12 @@ public class HasilPemantauanServiceImpl implements HasilPemantauanService {
             throw new ResourceNotFoundException("Data hasil pemantauan already exists for id_rencana_kinerja: " + idRekin);
         }
 
-        Map<String, Object> pembuat = pegawaiService.getMappedPembuat(dto.getNip_pembuat());
+        Map<String, Object> pembuat = pegawaiService.getMappedPembuat(Crypto.decrypt(dto.getNip_pembuat()));
+        String nipPembuat = (String) pembuat.get("nip");
+        String namaPembuat = (String) pembuat.get("nama");
         PegawaiInfo pegawai = PegawaiInfo.builder()
-                .nip((String) pembuat.get("nip"))
-                .nama((String) pembuat.get("nama"))
+                .nip(Crypto.encrypt(nipPembuat))
+                .nama(namaPembuat)
                 .build();
 
         int tingkatRisiko = (dto.getSkala_kemungkinan() * dto.getSkala_dampak());
@@ -230,7 +231,6 @@ public class HasilPemantauanServiceImpl implements HasilPemantauanService {
                 (tingkatRisiko >= 1 && tingkatRisiko <= 4)  ? "Rendah" :
                         (tingkatRisiko >= 5 && tingkatRisiko <= 12) ? "Menengah" :
                                 (tingkatRisiko >= 15 && tingkatRisiko <= 25) ? "Tinggi" : "-";
-
 
         HasilPemantauan hasilPemantauan = HasilPemantauan.builder()
                 .skalaDampak(dto.getSkala_dampak())
@@ -269,10 +269,19 @@ public class HasilPemantauanServiceImpl implements HasilPemantauanService {
         HasilPemantauan hp = hpRepository.findOneByIdRekin(idRekin)
                 .orElseThrow(() -> new ResourceNotFoundException("Data hasil pemantauan not found for id_rencana_kinerja: " + idRekin));
 
-        Map<String, Object> pembuat = pegawaiService.getMappedPembuat(dto.getNip_pembuat());
+        Map<String, Object> checkIdRekinUpdated = rencanaKinerjaService.getDetailRencanaKinerja(dto.getId_rencana_kinerja());
+        Object checkIdRekinUpdatedObj = checkIdRekinUpdated.get("rencana_kinerja");
+
+        if (checkIdRekinUpdatedObj instanceof Map == false) {
+            throw new ResourceNotFoundException("YOUR UPDATED: ID Rencana Kinerja " + dto.getId_rencana_kinerja() + " is not valid");
+        }
+
+        Map<String, Object> pembuat = pegawaiService.getMappedPembuat(Crypto.decrypt(dto.getNip_pembuat()));
+        String nipPembuat = (String) pembuat.get("nip");
+        String namaPembuat = (String) pembuat.get("nama");
         PegawaiInfo pegawai = PegawaiInfo.builder()
-                .nip((String) pembuat.get("nip"))
-                .nama((String) pembuat.get("nama"))
+                .nip(Crypto.encrypt(nipPembuat))
+                .nama(namaPembuat)
                 .build();
 
         int tingkatRisiko = (dto.getSkala_kemungkinan() * dto.getSkala_dampak());
@@ -299,10 +308,12 @@ public class HasilPemantauanServiceImpl implements HasilPemantauanService {
         HasilPemantauan hp = hpRepository.findOneByIdRekin(idRekin)
                 .orElseThrow(() -> new ResourceNotFoundException("Data Hasil Pemantauan not found for id_rencana_kinerja: " + idRekin));
 
-        Map<String, Object> pembuat = pegawaiService.getMappedPembuat(updateDTO.getNip_verifikator());
+        Map<String, Object> verifikator = pegawaiService.getMappedPembuat(Crypto.decrypt(updateDTO.getNip_verifikator()));
+        String nipVerifikator = (String) verifikator.get("nip");
+        String namaVerifikator = (String) verifikator.get("nama");
         PegawaiInfo pegawai = PegawaiInfo.builder()
-                .nip((String) pembuat.get("nip"))
-                .nama((String) pembuat.get("nama"))
+                .nip(Crypto.encrypt(nipVerifikator))
+                .nama(namaVerifikator)
                 .build();
 
         try {

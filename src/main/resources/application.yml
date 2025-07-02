@@ -35,6 +35,8 @@ spring:
       port: 6379
 server:
   port: 8080
+  tomcat:
+    allow-encoded-slashes: true
   servlet:
     context-path: /manrisk-fraud/api
 external:
@@ -57,6 +59,7 @@ logging:
       springdoc: DEBUG
       springframework:
         web: DEBUG
+        security: DEBUG
       flywaydb: INFO
     io:
       swagger: DEBUG

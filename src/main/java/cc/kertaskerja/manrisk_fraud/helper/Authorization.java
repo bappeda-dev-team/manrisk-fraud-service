@@ -1,6 +1,7 @@
 package cc.kertaskerja.manrisk_fraud.helper;
 
 import cc.kertaskerja.manrisk_fraud.exception.ForbiddenException;
+import cc.kertaskerja.manrisk_fraud.exception.ResourceNotFoundException;
 import cc.kertaskerja.manrisk_fraud.service.global.PegawaiService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -16,15 +17,19 @@ public class Authorization {
     private final PegawaiService pegawaiService;
 
     public void adminOnly(String nip) {
-        authorize(nip, Set.of("super_admin", "admin_opd", "level_3"));
-    }
-
-    public void checkCanSave(String nip) {
         authorize(nip, Set.of("super_admin", "admin_opd"));
     }
 
+    public void checkCanSave(String nip) {
+        authorize(nip, Set.of("super_admin", "admin_opd", "level_3"));
+    }
+
     private void authorize(String nip, Set<String> allowedRoles) {
-        Map<String, Object> pegawaiDetail = pegawaiService.getPegawaiDetail(nip);
+        if (!Crypto.isEncrypted(nip)) {
+            throw new ResourceNotFoundException("NIP is not encrypted: " + nip);
+        }
+
+        Map<String, Object> pegawaiDetail = pegawaiService.getPegawaiDetail(Crypto.decrypt(nip));
         Map<String, Object> data = (Map<String, Object>) pegawaiDetail.get("data");
 
         if (data == null || !data.containsKey("role")) {
