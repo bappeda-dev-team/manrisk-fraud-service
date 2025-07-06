@@ -32,11 +32,22 @@ public class Crypto {
         }
     }
 
+    /**
+     * Check whether the input is a valid AES-encrypted string.
+     * If decryption works and the result looks like expected format (e.g., NIP),
+     * then assume it's encrypted.
+     */
     public static boolean isEncrypted(String input) {
         try {
-            String decrypted = Crypto.decrypt(input);
-            // Optional: Add further validation here (e.g., regex for NIP format)
-            return !decrypted.equals(input); // If decrypt works and result is different, likely encrypted
+            String decrypted = decrypt(input);
+
+            // ✅ Customize this condition to match your expected plaintext pattern (e.g., 18-digit NIP)
+            if (decrypted.matches("\\d{18}")) {
+                return true;
+            }
+
+            // Otherwise it's likely not encrypted (e.g., random decrypted junk)
+            return false;
         } catch (Exception e) {
             return false;
         }
