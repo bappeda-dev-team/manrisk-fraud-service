@@ -31,7 +31,7 @@ public class SecurityConfig {
                                 "/swagger-resources/**",
                                 "/webjars/**",
                                 "/actuator/**",
-                                "/external/**"
+                                "/api/external/**"
                         ).permitAll()
 
                         // API public (opsional)
