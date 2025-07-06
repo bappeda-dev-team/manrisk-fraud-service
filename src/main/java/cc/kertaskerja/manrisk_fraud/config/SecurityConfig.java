@@ -29,13 +29,15 @@ public class SecurityConfig {
                                 "/swagger-ui.html",
                                 "/v3/api-docs/**",
                                 "/swagger-resources/**",
-                                "/webjars/**",
-                                "/actuator/**",
-                                "/api/external/**"
+                                "/webjars/**"
                         ).permitAll()
 
                         // API public (opsional)
-                        .requestMatchers("/api/public/**").permitAll()
+                        .requestMatchers(
+                            "/api/public/**",
+                            "/actuator/**",
+                            "/api/external/**"
+                        ).permitAll()
 
                         // Endpoint lain wajib login
                         .anyRequest().authenticated()
