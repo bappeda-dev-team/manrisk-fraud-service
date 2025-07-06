@@ -4,8 +4,6 @@ import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 import java.util.Base64;
 
-import static org.hibernate.query.sqm.tree.SqmNode.log;
-
 public class Crypto {
     private static final String ALGORITHM = "AES";
     private static final String SECRET_KEY = "mySuperSecretKey"; // Must be 16 characters for AES-128

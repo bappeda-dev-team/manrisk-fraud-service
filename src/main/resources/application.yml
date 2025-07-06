@@ -14,8 +14,8 @@ spring:
     url: jdbc:postgresql://localhost:5432/manajemen_risiko_fraud
   security:
     user:
-      name: admin
-      password: admin123
+      name: webprogmanriskfraud
+      password: 3bOS3kD9nE
   jpa:
     # Show SQL statements
     show-sql: true
