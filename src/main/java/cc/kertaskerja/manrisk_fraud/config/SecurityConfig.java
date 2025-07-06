@@ -30,7 +30,8 @@ public class SecurityConfig {
                                 "/v3/api-docs/**",
                                 "/swagger-resources/**",
                                 "/webjars/**",
-                                "/actuator/**"
+                                "/actuator/**",
+                                "/external/**"
                         ).permitAll()
 
                         // API public (opsional)
