@@ -1,0 +1,48 @@
+{
+  "family": "manrisk-fraud-task",
+  "containerDefinitions": [
+    {
+      "name": "manajemen-risiko-fraud",
+      "image": "%s",
+      "cpu": 512,
+      "memory": 1024,
+      "portMappings": [
+        {
+          "containerPort": 8080,
+          "hostPort": 8080,
+          "protocol": "tcp"
+        }
+      ],
+      "essential": true,
+      "environment": [
+        {
+          "name": "SPRING_DATASOURCE_URL",
+          "value": "jdbc:postgresql://manrisk-fraud-v2.cz2kyg8mskkq.ap-southeast-1.rds.amazonaws.com:5432/manrisk-fraud-v2"
+        },
+        {
+          "name": "SPRING_DATASOURCE_USERNAME",
+          "value": "majapahit"
+        },
+        {
+          "name": "SPRING_DATASOURCE_PASSWORD",
+          "value": "XeeLJ6dPxRTm3PQpgE7m"
+        },
+        {
+          "name": "SPRING_DATA_REDIS_HOST",
+          "value": "clustercfg.manrisk-redis-v2.9vs6i3.apse1.cache.amazonaws.com"
+        },
+        {
+          "name": "SPRING_DATA_REDIS_PORT",
+          "value": "6379"
+        }
+      ]
+    }
+  ],
+  "requiresCompatibilities": [
+    "FARGATE"
+  ],
+  "networkMode": "awsvpc",
+  "cpu": "512",
+  "memory": "1024",
+  "executionRoleArn": "arn:aws:ecs:ap-southeast-1:863836597257:task-definition/manrisk-fraud-task-v2:1"
+}
