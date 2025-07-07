@@ -40,7 +40,7 @@ jobs:
           echo "image=$ECR_REGISTRY/${{ secrets.AWS_ECR_REPOSITORY }}:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
       - name: Write task definition from secret
-        run: echo "${{ secrets.ECS_TASK_DEFINITION_FILE }}" > task-def.json
+        run: echo "${{ secrets.ECS_TASK_DEFINITION_FILE }}" > ecs-task-definition.json
 
       - name: Fill in the new image ID in the Amazon ECS task definition
         id: task-def
