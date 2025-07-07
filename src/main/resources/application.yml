@@ -80,4 +80,3 @@ springdoc:
     disable-swagger-default-url: true
   override-with-generic-response: false
   show-actuator: false
-
