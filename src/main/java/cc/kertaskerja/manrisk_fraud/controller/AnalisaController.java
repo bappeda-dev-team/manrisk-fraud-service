@@ -65,6 +65,7 @@ public class AnalisaController {
         }
 
         AnalisaResDTO result = analisaService.saveAnalisa(reqDTO);
+
         return ResponseEntity.ok(ApiResponse.success(result, "Saved successfully"));
     }
 

@@ -47,7 +47,7 @@ public class AnalisaReqDTO {
 
     @NotBlank(message = "Data NIP Pegawai dibutuhkan")
     private String nip_pembuat;
-
+//
 //    @Valid
 //    @NotNull(message = "Pegawai tidak boleh kosong!")
 //    @JsonProperty("pembuat")
