@@ -44,5 +44,5 @@
   "networkMode": "awsvpc",
   "cpu": "512",
   "memory": "1024",
-  "executionRoleArn": "arn:aws:ecs:ap-southeast-1:863836597257:task-definition/manrisk-fraud-task-v2:1"
+  "executionRoleArn": "arn:aws:iam::863836597257:role/ecsTaskExecutionRole"
 }
