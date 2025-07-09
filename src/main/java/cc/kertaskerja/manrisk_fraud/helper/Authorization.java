@@ -20,6 +20,10 @@ public class Authorization {
         authorize(nip, Set.of("super_admin", "admin_opd"));
     }
 
+    public void canVerify(String nip) {
+        authorize(nip, Set.of("super_admin", "admin_opd", "level_2"));
+    }
+
     public void checkCanSave(String nip) {
         authorize(nip, Set.of("super_admin", "admin_opd", "level_3"));
     }

@@ -40,9 +40,9 @@ public class HasilPemantauanServiceImpl implements HasilPemantauanService {
             .registerModule(new Hibernate6Module())
             .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
-
     private HasilPemantauanResDTO buildDTOFFromHasilPemantauan(JsonNode rk, JsonNode pemantauan, HasilPemantauan h) {
         return HasilPemantauanResDTO.builder()
+                .id(h.getId())
                 .id_rencana_kinerja(rk.path("id_rencana_kinerja").asText())
                 .id_pohon(rk.path("id_pohon").asInt())
                 .nama_pohon(rk.path("nama_pohon").asText())
@@ -211,7 +211,7 @@ public class HasilPemantauanServiceImpl implements HasilPemantauanService {
         JsonNode rkNode = objectMapper.convertValue(rkObj, JsonNode.class);
 
         Pemantauan pemantauan = pemantauanRepository.findOneByIdRekin(idRekin)
-                .orElseThrow(() -> new ResourceNotFoundException("Data identifikasi not found for id_rencana_kinerja: " + idRekin));
+                .orElseThrow(() -> new ResourceNotFoundException("Data pemantauan not found for id_rencana_kinerja: " + idRekin));
         JsonNode pemantauanNode = objectMapper.convertValue(pemantauan, JsonNode.class);
 
         if (hpRepository.existsByIdRencanaKinerja(idRekin)) {
@@ -319,8 +319,8 @@ public class HasilPemantauanServiceImpl implements HasilPemantauanService {
         try {
             StatusEnum status = StatusEnum.valueOf(updateDTO.getStatus());
             hp.setStatus(status);
-            hp.setVerifikator(pegawai);
             hp.setKeterangan(updateDTO.getKeterangan());
+            hp.setVerifikator(pegawai);
         } catch (IllegalArgumentException e) {
             throw new ResourceNotFoundException("Invalid status: " + updateDTO.getStatus());
         }
@@ -339,10 +339,6 @@ public class HasilPemantauanServiceImpl implements HasilPemantauanService {
         Pemantauan pemantauan = pemantauanRepository.findOneByIdRekin(idRekin)
                 .orElseThrow(() -> new ResourceNotFoundException("Data identifikasi not found for id_rencana_kinerja: " + idRekin));
         JsonNode pemantauanNode = objectMapper.convertValue(pemantauan, JsonNode.class);
-
-        if (hpRepository.existsByIdRencanaKinerja(idRekin)) {
-            throw new ResourceNotFoundException("Data hasil pemantauan already exists for id_rencana_kinerja: " + idRekin);
-        }
 
         return buildDTOFFromHasilPemantauan(rkNode, pemantauanNode, updated);
     }

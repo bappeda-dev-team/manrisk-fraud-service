@@ -102,7 +102,7 @@ public class IdentifikasiController {
     public ResponseEntity<ApiResponse<?>> verifyIdentifikasi(@PathVariable String idRekin,
                                                              @Valid @RequestBody IdentifikasiReqDTO.UpdateStatusDTO reqDTO,
                                                              BindingResult bindingResult) {
-        authorization.checkCanSave(reqDTO.getNip_verifikator());
+        authorization.canVerify(reqDTO.getNip_verifikator());
 
         if (bindingResult.hasErrors()) {
             List<String> errorMessages = bindingResult.getFieldErrors().stream()

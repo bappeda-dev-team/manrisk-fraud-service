@@ -106,7 +106,7 @@ public class PenangananController {
     public ResponseEntity<ApiResponse<?>> verifyPenanganan(@PathVariable String idRekin,
                                                            @Valid @RequestBody PenangananReqDTO.UpdateStatusDTO dto,
                                                            BindingResult bindingResult) {
-        authorization.checkCanSave(dto.getNip_verifikator());
+        authorization.canVerify(dto.getNip_verifikator());
 
         if (bindingResult.hasErrors()) {
             List<String> errorMessages = bindingResult.getFieldErrors().stream()

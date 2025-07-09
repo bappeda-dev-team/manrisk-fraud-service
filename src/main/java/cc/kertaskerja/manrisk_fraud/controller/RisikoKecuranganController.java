@@ -64,7 +64,7 @@ public class RisikoKecuranganController {
     public ResponseEntity<ApiResponse<?>> updateRisikoKecurangan(@PathVariable Long id,
                                                                  @Valid @RequestBody RisikoKecuranganDTO dto,
                                                                  BindingResult bindingResult) {
-        authorization.adminOnly(dto.getNip_pembuat());
+        authorization.canVerify(dto.getNip_pembuat());
 
         if (bindingResult.hasErrors()) {
             List<String> errorMessages = bindingResult.getFieldErrors().stream()

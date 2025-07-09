@@ -103,7 +103,7 @@ public class PemantauanController {
     public ResponseEntity<ApiResponse<?>> updateStatusPemantauan(@PathVariable String idRekin,
                                                                  @Valid @RequestBody PemantauanReqDTO.UpdateStatusDTO dto,
                                                                  BindingResult bindingResult) {
-        authorization.checkCanSave(dto.getNip_verifikator());
+        authorization.canVerify(dto.getNip_verifikator());
 
         if (bindingResult.hasErrors()) {
             List<String> errorMessages = bindingResult.getFieldErrors().stream()

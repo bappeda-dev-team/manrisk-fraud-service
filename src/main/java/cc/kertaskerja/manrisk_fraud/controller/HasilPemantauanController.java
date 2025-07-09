@@ -103,7 +103,7 @@ public class HasilPemantauanController {
     public ResponseEntity<ApiResponse<?>> verifyHasilPemantauan(@PathVariable String idRekin,
                                                                 @Valid @RequestBody HasilPemantauanReqDTO.UpdateStatusDTO reqDTO,
                                                                 BindingResult bindingResult) {
-        authorization.checkCanSave(reqDTO.getNip_verifikator());
+        authorization.canVerify(reqDTO.getNip_verifikator());
 
         if (bindingResult.hasErrors()) {
             List<String> errorMessages = bindingResult.getFieldErrors().stream()

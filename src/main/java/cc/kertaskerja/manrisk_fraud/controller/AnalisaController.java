@@ -102,7 +102,7 @@ public class AnalisaController {
     public ResponseEntity<ApiResponse<?>> updateStatusAnalisa(@PathVariable String idRekin,
                                                               @Valid @RequestBody AnalisaReqDTO.UpdateStatusDTO updateDto,
                                                               BindingResult bindingResult) {
-        authorization.checkCanSave(updateDto.getNip_verifikator());
+        authorization.canVerify(updateDto.getNip_verifikator());
 
         if (bindingResult.hasErrors()) {
             List<String> errorMessages = bindingResult.getFieldErrors().stream()

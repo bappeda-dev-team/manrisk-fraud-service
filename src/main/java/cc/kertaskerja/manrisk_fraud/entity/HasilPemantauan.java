@@ -17,6 +17,9 @@ import lombok.*;
 @ToString(callSuper = true)
 @Builder
 public class HasilPemantauan extends BaseAuditable {
+    @Column(name = "id", insertable = false, updatable = false)
+    private Long id;
+
     @Id
     @Column(name = "id_rencana_kinerja")
     private String idRencanaKinerja;
