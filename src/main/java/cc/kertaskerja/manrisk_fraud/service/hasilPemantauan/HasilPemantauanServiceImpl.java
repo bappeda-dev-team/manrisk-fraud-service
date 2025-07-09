@@ -214,10 +214,6 @@ public class HasilPemantauanServiceImpl implements HasilPemantauanService {
                 .orElseThrow(() -> new ResourceNotFoundException("Data pemantauan not found for id_rencana_kinerja: " + idRekin));
         JsonNode pemantauanNode = objectMapper.convertValue(pemantauan, JsonNode.class);
 
-        if (hpRepository.existsByIdRencanaKinerja(idRekin)) {
-            throw new ResourceNotFoundException("Data hasil pemantauan already exists for id_rencana_kinerja: " + idRekin);
-        }
-
         Map<String, Object> pembuat = pegawaiService.getMappedPegawai(Crypto.decrypt(dto.getNip_pembuat()));
         String nipPembuat = (String) pembuat.get("nip");
         String namaPembuat = (String) pembuat.get("nama");
