@@ -3,8 +3,9 @@ package cc.kertaskerja.manrisk_fraud.controller;
 import cc.kertaskerja.manrisk_fraud.dto.ApiResponse;
 import cc.kertaskerja.manrisk_fraud.dto.EncryptDTO;
 import cc.kertaskerja.manrisk_fraud.service.external.EncryptService;
-import cc.kertaskerja.manrisk_fraud.service.external.OPDService;
+import cc.kertaskerja.manrisk_fraud.service.external.opd.OPDService;
 import cc.kertaskerja.manrisk_fraud.service.external.RencanaKinerjaService;
+import cc.kertaskerja.manrisk_fraud.service.external.penetapan.PenetapanService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -23,12 +24,20 @@ public class ExternalAPIController {
     private final OPDService opdService;
     private final RencanaKinerjaService rekinList;
     private final EncryptService encryptService;
+    private final PenetapanService penetapanService;
 
     @GetMapping("/opdlist")
     public ResponseEntity<ApiResponse<List<Map<String, Object>>>> getOpdList() {
         List<Map<String, Object>> result = opdService.findAll();
 
         return ResponseEntity.ok(ApiResponse.success(result, "Retrieved " + result.size() + " data Perangkat Daerah successfully"));
+    }
+
+    @GetMapping("/tujuan-opd/{kodeOpd}/{tahun}")
+    public ResponseEntity<ApiResponse<List<Map<String, Object>>>> getTujuanOpd(@PathVariable String kodeOpd, @PathVariable String tahun) {
+        List<Map<String, Object>> result = penetapanService.findAll(kodeOpd, tahun);
+
+        return ResponseEntity.ok(ApiResponse.success(result, "Retrieved " + result.size() + " data Tujuan OPD successfully"));
     }
 
     @GetMapping("/rencana-kinerja/{nip}/{tahun}")

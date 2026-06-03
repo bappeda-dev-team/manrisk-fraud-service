@@ -1,5 +1,7 @@
 package cc.kertaskerja.manrisk_fraud.service.external;
 
+import cc.kertaskerja.manrisk_fraud.exception.ResourceNotFoundException;
+import cc.kertaskerja.manrisk_fraud.helper.Crypto;
 import cc.kertaskerja.manrisk_fraud.service.global.AccessTokenService;
 import cc.kertaskerja.manrisk_fraud.utils.HttpClient;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -25,11 +27,14 @@ public class RencanaKinerjaServiceImpl implements RencanaKinerjaService {
     @Value("${external.rekin.base-url}")
     private String rekinBaseUrl;
 
-
     @Override
     public List<Map<String, Object>> findAll(String nip, String tahun) {
+        if (!Crypto.isEncrypted(nip)) {
+            throw new ResourceNotFoundException("NIP is not encrypted: " + nip);
+        }
+
         String token = accessTokenService.getAccessToken();
-        String url = String.format("%s/get_rencana_kinerja/pegawai/%s?tahun=%s", rekinBaseUrl, nip, tahun);
+        String url = String.format("%s/get_rencana_kinerja/pegawai/%s?tahun=%s", rekinBaseUrl, Crypto.decrypt(nip), tahun);
 
         org.springframework.http.HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(token);
@@ -42,6 +47,7 @@ public class RencanaKinerjaServiceImpl implements RencanaKinerjaService {
 
             return objectMapper.readValue(jsonData, new TypeReference<>() {});
         } catch (JsonProcessingException e) {
+            System.out.println(e.getMessage());
             return Collections.emptyList();
         }
     }

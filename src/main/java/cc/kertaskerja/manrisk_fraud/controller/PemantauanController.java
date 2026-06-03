@@ -67,7 +67,7 @@ public class PemantauanController {
 
         PemantauanResDTO result = pemantauanService.savePemantauan(dto);
 
-        return ResponseEntity.ok(ApiResponse.success(result, "Saved successfully"));
+        return ResponseEntity.ok(ApiResponse.created(result));
     }
 
     @PutMapping("/{idRekin}")

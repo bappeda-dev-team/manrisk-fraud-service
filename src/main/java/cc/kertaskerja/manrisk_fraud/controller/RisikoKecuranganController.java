@@ -56,7 +56,7 @@ public class RisikoKecuranganController {
 
         RisikoKecuranganDTO result = risikoKecuranganService.save(dto);
 
-        return ResponseEntity.ok(ApiResponse.success(result, "Saved successfully"));
+        return ResponseEntity.ok(ApiResponse.created(result));
     }
 
     @PutMapping("/{id}")

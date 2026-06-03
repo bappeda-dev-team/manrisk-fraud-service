@@ -4,18 +4,18 @@ spring:
   datasource:
     username: majapahit
     password: Madiun@123
-    url: jdbc:postgresql://localhost:5432/manajemen_risiko_fraud
+    url: jdbc:postgresql://localhost:5432/manajemen_risiko
     hikari:
       connection-timeout: 2000
       maximum-pool-size: 5
   flyway:
     user: ${spring.datasource.username}
     password: ${spring.datasource.password}
-    url: jdbc:postgresql://localhost:5432/manajemen_risiko_fraud
+    url: jdbc:postgresql://localhost:5432/manajemen_risiko
   security:
     user:
       name: webprogmanriskfraud
-      password: 3bOS3kD9nE
+      password: admin123
   jpa:
     # Show SQL statements
     show-sql: true
@@ -38,7 +38,7 @@ server:
   tomcat:
     allow-encoded-slashes: true
   servlet:
-    context-path: /manrisk-fraud/api
+    context-path: /manrisk/api
 external:
   rekin:
     base-url: https://api-ekak.zeabur.app
@@ -80,3 +80,10 @@ springdoc:
     disable-swagger-default-url: true
   override-with-generic-response: false
   show-actuator: false
+
+integration:
+  penetapan:
+    base-url: https://penetapan-service-staging.zeabur.app
+    read-through-enabled: true
+    connect-timeout: 5s
+    read-timeout: 10s

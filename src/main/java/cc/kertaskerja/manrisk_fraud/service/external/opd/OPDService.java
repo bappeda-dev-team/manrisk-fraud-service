@@ -1,4 +1,4 @@
-package cc.kertaskerja.manrisk_fraud.service.external;
+package cc.kertaskerja.manrisk_fraud.service.external.opd;
 
 import org.springframework.stereotype.Service;
 

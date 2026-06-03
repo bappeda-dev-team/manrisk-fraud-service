@@ -70,7 +70,7 @@ public class PenangananController {
 
         PenangananResDTO result = penangananService.savePenanganan(reqDTO);
 
-        return ResponseEntity.ok(ApiResponse.success(result, "Saved successfully"));
+        return ResponseEntity.ok(ApiResponse.created(result));
     }
 
     @PutMapping("/{idRekin}")

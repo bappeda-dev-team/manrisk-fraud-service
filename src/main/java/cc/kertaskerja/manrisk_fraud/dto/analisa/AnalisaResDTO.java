@@ -26,6 +26,7 @@ public class AnalisaResDTO {
     private String pegawai_id;
     private String nama_pegawai;
     private OperasionalDaerah operasional_daerah;
+
     private String nama_risiko;
     private String penyebab;
     private String akibat;
