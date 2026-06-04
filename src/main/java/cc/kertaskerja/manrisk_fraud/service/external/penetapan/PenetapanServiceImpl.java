@@ -27,11 +27,10 @@ public class PenetapanServiceImpl implements PenetapanService {
 
     @Override
     public List<Map<String, Object>> findAll(String kodeOpd, String tahun) {
-        String token = accessTokenService.getAccessToken();
+//        String token = accessTokenService.getAccessToken();
         String url = String.format("%s/opd/tujuan?kodeOpd=%s&tahun=%s", penetapanBaseUrl, kodeOpd, tahun);
 
         HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(token);
 
         Map<String, Object> response = httpClient.get(url, headers, Map.class);
 
