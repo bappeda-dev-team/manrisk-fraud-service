@@ -9,8 +9,8 @@ import cc.kertaskerja.manrisk_fraud.exception.InternalServerException;
 import cc.kertaskerja.manrisk_fraud.exception.ResourceNotFoundException;
 import cc.kertaskerja.manrisk_fraud.helper.Crypto;
 import cc.kertaskerja.manrisk_fraud.repository.IdentifikasiRepository;
+import cc.kertaskerja.manrisk_fraud.service.external.rekin.RencanaKinerjaService;
 import cc.kertaskerja.manrisk_fraud.service.global.PegawaiService;
-import cc.kertaskerja.manrisk_fraud.service.global.RencanaKinerjaService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 public class IdentifikasiServiceImpl implements IdentifikasiService {
 
     private final IdentifikasiRepository identifikasiRepository;
-    private final RencanaKinerjaService rencanaKinerjaService;
+    private final RencanaKinerjaService rekinService;
     private final PegawaiService pegawaiService;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -93,8 +93,8 @@ public class IdentifikasiServiceImpl implements IdentifikasiService {
             throw new ResourceNotFoundException("NIP is not encrypted: " + nip);
         }
 
-        // Step 1: Call external API via RencanaKinerjaService
-        Map<String, Object> eksternalResponse = rencanaKinerjaService.getRencanaKinerja(Crypto.decrypt(nip), tahun);
+        // Step 1: Call external API via rekinService
+        Map<String, Object> eksternalResponse = rekinService.getRencanaKinerja(Crypto.decrypt(nip), tahun);
         Object rkObj = eksternalResponse.get("rencana_kinerja");
 
         if (!(rkObj instanceof List<?> rkList)) {
@@ -131,7 +131,7 @@ public class IdentifikasiServiceImpl implements IdentifikasiService {
     @Override
     public IdentifikasiResDTO findOneIdentifikasi(String idRekin) {
         // Step 1: Ambil data dari external API
-        Map<String, Object> detailResponse = rencanaKinerjaService.getDetailRencanaKinerja(idRekin);
+        Map<String, Object> detailResponse = rekinService.getDetailRencanaKinerja(idRekin);
         Object rkObj = detailResponse.get("rencana_kinerja");
 
         if (rkObj == null) {
@@ -155,10 +155,10 @@ public class IdentifikasiServiceImpl implements IdentifikasiService {
             throw new ResourceNotFoundException("id_rencana_kinerja is required");
         }
 
-        // Step 1: Validate against external API via the RencanaKinerjaService
+        // Step 1: Validate against external API via the rekinService
         Map<String, Object> detailResponse;
         try {
-            detailResponse = rencanaKinerjaService.getDetailRencanaKinerja(idRekin);
+            detailResponse = rekinService.getDetailRencanaKinerja(idRekin);
         } catch (Exception e) {
             throw new ResourceNotFoundException("ID Rencana Kinerja not found in external API: " + idRekin);
         }
@@ -205,7 +205,7 @@ public class IdentifikasiServiceImpl implements IdentifikasiService {
     @Override
     @Transactional
     public IdentifikasiResDTO updateIdentifikasi(String idRekin, IdentifikasiReqDTO reqDTO) {
-        Map<String, Object> rekinDetail = rencanaKinerjaService.getDetailRencanaKinerja(idRekin);
+        Map<String, Object> rekinDetail = rekinService.getDetailRencanaKinerja(idRekin);
         Object rkObj = rekinDetail.get("rencana_kinerja");
 
         if (rkObj instanceof Map == false) {
@@ -215,7 +215,7 @@ public class IdentifikasiServiceImpl implements IdentifikasiService {
         Identifikasi ident = identifikasiRepository.findOneByIdRekin(idRekin)
                 .orElseThrow(() -> new ResourceNotFoundException("Data identifikasi not found for ID Rencana Kinerja: " + idRekin));
 
-        Map<String, Object> checkIdRekinUpdated = rencanaKinerjaService.getDetailRencanaKinerja(reqDTO.getId_rencana_kinerja());
+        Map<String, Object> checkIdRekinUpdated = rekinService.getDetailRencanaKinerja(reqDTO.getId_rencana_kinerja());
         Object checkIdRekinUpdatedObj = checkIdRekinUpdated.get("rencana_kinerja");
 
         if (checkIdRekinUpdatedObj instanceof Map == false) {
@@ -243,7 +243,7 @@ public class IdentifikasiServiceImpl implements IdentifikasiService {
         Identifikasi updated = identifikasiRepository.save(ident);
 
         // Get external data for response
-        Map<String, Object> detailResponse = rencanaKinerjaService.getDetailRencanaKinerja(idRekin);
+        Map<String, Object> detailResponse = rekinService.getDetailRencanaKinerja(idRekin);
         JsonNode rkNode = objectMapper.convertValue(detailResponse.get("rencana_kinerja"), JsonNode.class);
 
         return buildDTOFromRkAndIdentifikasi(rkNode, updated);
@@ -274,7 +274,7 @@ public class IdentifikasiServiceImpl implements IdentifikasiService {
 
         Identifikasi updated = identifikasiRepository.save(identifikasi);
 
-        Map<String, Object> rekinDetail = rencanaKinerjaService.getDetailRencanaKinerja(idRekin);
+        Map<String, Object> rekinDetail = rekinService.getDetailRencanaKinerja(idRekin);
         Object rkObj = rekinDetail.get("rencana_kinerja");
 
         if (!(rkObj instanceof Map)) {

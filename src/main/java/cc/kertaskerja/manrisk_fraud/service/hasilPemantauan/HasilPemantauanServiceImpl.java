@@ -10,8 +10,8 @@ import cc.kertaskerja.manrisk_fraud.exception.ResourceNotFoundException;
 import cc.kertaskerja.manrisk_fraud.helper.Crypto;
 import cc.kertaskerja.manrisk_fraud.repository.HasilPemantauanRepository;
 import cc.kertaskerja.manrisk_fraud.repository.PemantauanRepository;
+import cc.kertaskerja.manrisk_fraud.service.external.rekin.RencanaKinerjaService;
 import cc.kertaskerja.manrisk_fraud.service.global.PegawaiService;
-import cc.kertaskerja.manrisk_fraud.service.global.RencanaKinerjaService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -34,7 +34,6 @@ public class HasilPemantauanServiceImpl implements HasilPemantauanService {
     private final PegawaiService pegawaiService;
     private final PemantauanRepository pemantauanRepository;
     private final HasilPemantauanRepository hpRepository;
-    private final RencanaKinerjaService rencanaKinerjaService;
     private final ObjectMapper objectMapper = new ObjectMapper()
             .registerModule(new JavaTimeModule())
             .registerModule(new Hibernate6Module())
@@ -115,7 +114,7 @@ public class HasilPemantauanServiceImpl implements HasilPemantauanService {
             throw new ResourceNotFoundException("NIP is not encrypted: " + Crypto.decrypt(nip));
         }
 
-        Map<String, Object> rekin = rencanaKinerjaService.getRencanaKinerja(Crypto.decrypt(nip), tahun);
+        Map<String, Object> rekin = rekinService.getRencanaKinerja(Crypto.decrypt(nip), tahun);
         Object rkObj = rekin.get("rencana_kinerja");
 
         if (!(rkObj instanceof List)) {
@@ -170,7 +169,7 @@ public class HasilPemantauanServiceImpl implements HasilPemantauanService {
     @Override
     public HasilPemantauanResDTO findOne(String idRekin) {
         // Get external RK data
-        Map<String, Object> rekinDetail = rencanaKinerjaService.getDetailRencanaKinerja(idRekin);
+        Map<String, Object> rekinDetail = rekinService.getDetailRencanaKinerja(idRekin);
         Object rkObj = rekinDetail.get("rencana_kinerja");
 
         if (!(rkObj instanceof Map)) {
@@ -265,7 +264,7 @@ public class HasilPemantauanServiceImpl implements HasilPemantauanService {
         HasilPemantauan hp = hpRepository.findOneByIdRekin(idRekin)
                 .orElseThrow(() -> new ResourceNotFoundException("Data hasil pemantauan not found for id_rencana_kinerja: " + idRekin));
 
-        Map<String, Object> checkIdRekinUpdated = rencanaKinerjaService.getDetailRencanaKinerja(dto.getId_rencana_kinerja());
+        Map<String, Object> checkIdRekinUpdated = rekinService.getDetailRencanaKinerja(dto.getId_rencana_kinerja());
         Object checkIdRekinUpdatedObj = checkIdRekinUpdated.get("rencana_kinerja");
 
         if (checkIdRekinUpdatedObj instanceof Map == false) {
@@ -323,7 +322,7 @@ public class HasilPemantauanServiceImpl implements HasilPemantauanService {
 
         HasilPemantauan updated = hpRepository.save(hp);
 
-        Map<String, Object> rekinDetail = rencanaKinerjaService.getDetailRencanaKinerja(idRekin);
+        Map<String, Object> rekinDetail = rekinService.getDetailRencanaKinerja(idRekin);
         Object rkObj = rekinDetail.get("rencana_kinerja");
 
         if (!(rkObj instanceof Map)) {

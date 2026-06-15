@@ -1,0 +1,388 @@
+saya mau buat table tujuan_opd yang mempunyai column (kode_tujuan, tahun). Saya pakai Java Sping Boot. Table tujuan_opd punya relation has many (identifikasi, analisa, penanganan, pemantuan, hasil_pemantauan) by id.
+
+1. Buatkan  POST masing-masing (identifikasi, analisa, penanganan, pemantuan, hasil_pemantauan) by id tujuan_opd.
+2. Buatkan findAll (identifikasi, analisa, penanganan, pemantuan, hasil_pemantauan) by id tujuan_opd yang dipilih. Jadi misalkan saya pilih tujuan_opd A yang diambil dari API "https://penetapan-service-staging.zeabur.app/opd/tujuan?kodeOpd=5.01.5.05.0.00.01.0000&tahun=2026" dengan hasil response seperti ini
+
+
+```json
+{
+"success": true,
+"statusCode": 200,
+"message": "Retrieved 3 data Tujuan OPD successfully",
+"data": [
+{
+"id": 1,
+"kode_tujuan_opd": "TUJ-OPD-126",
+"tujuan_opd": "a",
+"periode": "2025-2029",
+"indikators": [
+{
+"id": 1,
+"kode_indikator": "IND-57",
+"indikator": "TAMBAH IND 1",
+"rumus_perhitungan": "RUM",
+"sumber_data": "sumb",
+"definisi_operasional": "DEFO",
+"tahun_aktif": 2026,
+"targets": [
+{
+"id": 1,
+"kode_target": "TGT-TRG-TJN-aef55",
+"tahun": 2026,
+"target": 100,
+"satuan": "%"
+}
+]
+},
+{
+"id": 2,
+"kode_indikator": "IND-64",
+"indikator": "IND TAMBAHAN",
+"rumus_perhitungan": "rumus per",
+"sumber_data": "sumber bps kepala data",
+"definisi_operasional": "gghh",
+"tahun_aktif": 2026,
+"targets": [
+{
+"id": 2,
+"kode_target": "TGT-TRG-TJN-28a47",
+"tahun": 2026,
+"target": 799,
+"satuan": "%"
+}
+]
+}
+]
+},
+{
+"id": 2,
+"kode_tujuan_opd": "TUJ-OPD-127",
+"tujuan_opd": "Meningkatnya perencanaan pembangunan yang Akuntable",
+"periode": "2025-2030",
+"indikators": [
+{
+"id": 3,
+"kode_indikator": "IND-58",
+"indikator": "TAMBAH IND 2",
+"rumus_perhitungan": "RUM 2",
+"sumber_data": "SUM 2",
+"definisi_operasional": "DEFO 2",
+"tahun_aktif": 2026,
+"targets": [
+{
+"id": 3,
+"kode_target": "TGT-TRG-TJN-b5c4d",
+"tahun": 2026,
+"target": 5,
+"satuan": "%"
+}
+]
+}
+]
+},
+{
+"id": 3,
+"kode_tujuan_opd": "TUJ-OPD-193",
+"tujuan_opd": "cek di refactory edited",
+"periode": "2025-2030",
+"indikators": [
+{
+"id": 4,
+"kode_indikator": "IND-59",
+"indikator": "CEK INDIKATOR",
+"rumus_perhitungan": "RUM",
+"sumber_data": "SUM",
+"definisi_operasional": "DEFO",
+"tahun_aktif": 2026,
+"targets": [
+{
+"id": 4,
+"kode_target": "TGT-TRG-TJN-1bdac",
+"tahun": 2026,
+"target": 100,
+"satuan": "%"
+}
+]
+}
+]
+}
+],
+"timestamp": "2026-06-05T16:18:06.608019"
+}
+```
+
+maka akan tampil all identifikasi, pemantauan, dll berdasarkan tujuan_opd yang dipilih. Dan outputnya seperti ini
+
+
+buatkan prompt untuk claude agent sonnet
+
+
+{
+  "success": true,
+  "statusCode": 200,
+  "message": "Retrieved 3 data Tujuan OPD successfully",
+  "data": [
+    {
+      "id": 1,
+      "kode_tujuan_opd": "TUJ-OPD-126",
+      "tujuan_opd": "a",
+      "periode": "2025-2029",
+      "indikators": [
+        {
+          "id": 1,
+          "kode_indikator": "IND-57",
+          "indikator": "TAMBAH IND 1",
+          "rumus_perhitungan": "RUM",
+          "sumber_data": "sumb",
+          "definisi_operasional": "DEFO",
+          "tahun_aktif": 2026,
+          "targets": [
+            {
+              "id": 1,
+              "kode_target": "TGT-TRG-TJN-aef55",
+              "tahun": 2026,
+              "target": 100,
+              "satuan": "%"
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "kode_indikator": "IND-64",
+          "indikator": "IND TAMBAHAN",
+          "rumus_perhitungan": "rumus per",
+          "sumber_data": "sumber bps kepala data",
+          "definisi_operasional": "gghh",
+          "tahun_aktif": 2026,
+          "targets": [
+            {
+              "id": 2,
+              "kode_target": "TGT-TRG-TJN-28a47",
+              "tahun": 2026,
+              "target": 799,
+              "satuan": "%"
+            }
+          ]
+        }
+      ],
+      "manajemen_risiko": [
+        {
+          "tipe": "identifikasi",
+          "data": [
+            {
+              "id": 0,
+              "id_rencana_kinerja": "string",
+              "id_pohon": 0,
+              "nama_pohon": "string",
+              "level_pohon": 0,
+              "nama_rencana_kinerja": "string",
+              "tahun": "string",
+              "status_rencana_kinerja": "string",
+              "pegawai_id": "string",
+              "nama_pegawai": "string",
+              "operasional_daerah": {
+                "kode_opd": "string",
+                "nama_opd": "string"
+              },
+              "nama_risiko": "string",
+              "jenis_risiko": "string",
+              "uraian": "string",
+              "kemungkinan_kecurangan": "string",
+              "indikasi": "string",
+              "kemungkinan_pihak_terkait": "string",
+              "status": "string",
+              "keterangan": "string",
+              "pembuat": {
+                "nip": "string",
+                "nama": "string"
+              },
+              "verifikator": {
+                "nip": "string",
+                "nama": "string"
+              },
+              "created_at": "2026-06-05T10:17:39.078Z",
+              "updated_at": "2026-06-05T10:17:39.078Z"
+            }
+          ]
+        },
+        {
+          "tipe": "analisa",
+          "data": [
+            {
+              "id": 0,
+              "id_rencana_kinerja": "string",
+              "id_pohon": 0,
+              "nama_pohon": "string",
+              "level_pohon": 0,
+              "nama_rencana_kinerja": "string",
+              "tahun": "string",
+              "status_rencana_kinerja": "string",
+              "pegawai_id": "string",
+              "nama_pegawai": "string",
+              "operasional_daerah": {
+                "kode_opd": "string",
+                "nama_opd": "string"
+              },
+              "nama_risiko": "string",
+              "penyebab": "string",
+              "akibat": "string",
+              "skala_dampak": 0,
+              "skala_kemungkinan": 0,
+              "tingkat_risiko": 0,
+              "level_risiko": "string",
+              "status": "string",
+              "keterangan": "string",
+              "pembuat": {
+                "nip": "string",
+                "nama": "string"
+              },
+              "verifikator": {
+                "nip": "string",
+                "nama": "string"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "kode_tujuan_opd": "TUJ-OPD-127",
+      "tujuan_opd": "Meningkatnya perencanaan pembangunan yang Akuntable",
+      "periode": "2025-2030",
+      "indikators": [
+        {
+          "id": 3,
+          "kode_indikator": "IND-58",
+          "indikator": "TAMBAH IND 2",
+          "rumus_perhitungan": "RUM 2",
+          "sumber_data": "SUM 2",
+          "definisi_operasional": "DEFO 2",
+          "tahun_aktif": 2026,
+          "targets": [
+            {
+              "id": 3,
+              "kode_target": "TGT-TRG-TJN-b5c4d",
+              "tahun": 2026,
+              "target": 5,
+              "satuan": "%"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "kode_tujuan_opd": "TUJ-OPD-193",
+      "tujuan_opd": "cek di refactory edited",
+      "periode": "2025-2030",
+      "indikators": [
+        {
+          "id": 4,
+          "kode_indikator": "IND-59",
+          "indikator": "CEK INDIKATOR",
+          "rumus_perhitungan": "RUM",
+          "sumber_data": "SUM",
+          "definisi_operasional": "DEFO",
+          "tahun_aktif": 2026,
+          "targets": [
+            {
+              "id": 4,
+              "kode_target": "TGT-TRG-TJN-1bdac",
+              "tahun": 2026,
+              "target": 100,
+              "satuan": "%"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "timestamp": "2026-06-05T16:18:06.608019"
+}
+
+
+{
+  "success": true,
+  "statusCode": 200,
+  "message": "Saved successfully",
+  "data": {
+  "id": 1,
+  "tujuan_opd": {
+    "kode_tujuan_opd": "TUJ-OPD-127",
+    "tujuan_opd": "Meningkatnya perencanaan pembangunan yang Akuntable",
+    "periode": "2025-2030",
+    "indikators": [
+      {
+        "id": 3,
+        "kode_indikator": "IND-58",
+        "indikator": "TAMBAH IND 2",
+        "rumus_perhitungan": "RUM 2",
+        "sumber_data": "SUM 2",
+        "definisi_operasional": "DEFO 2",
+        "tahun_aktif": 2026,
+        "targets": [
+            {
+              "id": 3,
+              "kode_target": "TGT-TRG-TJN-b5c4d",
+              "tahun": 2026,
+              "target": 5,
+              "satuan": "%"
+            }
+        ]
+      }
+    ]
+  },
+  "rencana_kinerja": {
+    "id_rencana_kinerja": "REKIN-PEG-2025-03534",
+    "id_pohon": 8375,
+    "nama_pohon": "Melakukan koordinasi penyusunan dokumen perencanaan",
+    "level_pohon": 0,
+    "nama_rencana_kinerja": "Melakukan koordinasi penyusunan dokumen perencanaan",
+    "tahun": "2025",
+    "status_rencana_kinerja": "tidak aktif",
+    "pegawai_id": "akun_test_level_3",
+    "nama_pegawai": "akun test level 3",
+    "kode_opd": "5.01.5.05.0.00.01.0000",
+    "nama_opd": "Badan Perencanaan Pembangunan Riset, dan Inovasi Daerah"
+  },
+  "nama_risiko": "Test Manrisk Analisa 1",
+  "penyebab": "Testing saja",
+  "akibat": "tidak ada akibat",
+  "skala_dampak": 5,
+  "skala_kemungkinan": 5,
+  "tingkat_risiko": 25,
+  "level_risiko": "Tinggi",
+  "status": "PENDING",
+  "pembuat": {
+  "nip": "U5WSjvzWHhY-yA7FOuDPiDLLV4RHcvqg3DRrO_INzK8",
+  "nama": "akun test level 3"
+  }
+},
+"timestamp": "2026-06-15T14:46:26.200116"
+}
+
+
+{
+"nip_pembuat": "U5WSjvzWHhY-yA7FOuDPiDLLV4RHcvqg3DRrO_INzK8",
+"kode_tujuan_opd": "TUJ-OPD-127",
+"tahun": 2026,
+"id_rencana_kinerja": "REKIN-PEG-2025-84735",
+"nama_risiko": "Test Manrisk Analisa 2",
+"penyebab": "Kemiskinan meraja lela karena BBM naik",
+"akibat": "Tingkat kemiskinan meningkat",
+"skala_dampak": 5,
+"skala_kemungkinan": 2
+}
+
+
+
+//https://penetapan-service-staging.zeabur.app/individu/rekin?pegawaiId=196909212007012018&kodeOpd=8.01.0.00.0.00.01.0000&tahun=2026
+
+
+
+
+
+
+
+

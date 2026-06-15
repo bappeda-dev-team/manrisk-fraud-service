@@ -34,6 +34,30 @@ public class AnalisaController {
         return ResponseEntity.ok(ApiResponse.success(result, "Retrieved " + result.size() + " data successfully"));
     }
 
+    @GetMapping("/getallbytujuanopd/{kodeTujuanOpd}/{tahun}")
+    @Operation(summary = "Ambil seluruh Analisa berdasarkan Tujuan OPD")
+    public ResponseEntity<ApiResponse<AnalisaResDTO.AnalisaByTujuanResDTO>>
+    getAllByTujuanOpd(
+          @PathVariable String kodeTujuanOpd,
+          @PathVariable Integer tahun
+    ) {
+
+        AnalisaResDTO.AnalisaByTujuanResDTO result =
+              analisaService.findAllByTujuanOpd(
+                    kodeTujuanOpd,
+                    tahun
+              );
+
+        return ResponseEntity.ok(
+              ApiResponse.success(
+                    result,
+                    "Retrieved "
+                          + result.getAnalisa().size()
+                          + " data successfully"
+              )
+        );
+    }
+
     @GetMapping("/get-detail/{idRekin}")
     @Operation(summary = "Ambil satu data Analisa berdasarkan ID Rencana Kinerja")
     public ResponseEntity<ApiResponse<AnalisaResDTO>> getByIdRekin(@PathVariable String idRekin) {

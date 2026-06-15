@@ -7,5 +7,6 @@ import java.util.Map;
 
 @Service
 public interface PenetapanService {
-    List<Map<String, Object>> findAll(String kodeOpd, String tahun);
+    List<Map<String, Object>> findAllTujuanOpd(String kodeOpd, String tahun);
+    Map<String, Object> findDetailTujuanOpdByKode(String kodeTujuanOpd);
 }

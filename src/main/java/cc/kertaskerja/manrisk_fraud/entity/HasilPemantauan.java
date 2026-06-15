@@ -43,6 +43,11 @@ public class HasilPemantauan extends BaseAuditable {
     @Column(name = "keterangan")
     private String keterangan;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_tujuan_ex")
+    @JsonBackReference
+    private TujuanEx tujuan;
+
     @OneToOne(fetch = FetchType.LAZY)
     @MapsId
     @JoinColumn(name = "id_rencana_kinerja", referencedColumnName = "id_rencana_kinerja")

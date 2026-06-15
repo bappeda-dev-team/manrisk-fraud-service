@@ -4,6 +4,7 @@ import cc.kertaskerja.manrisk_fraud.common.BaseAuditable;
 import cc.kertaskerja.manrisk_fraud.dto.PegawaiInfo;
 import cc.kertaskerja.manrisk_fraud.enums.StatusEnum;
 import cc.kertaskerja.manrisk_fraud.helper.PegawaiInfoConverter;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.persistence.*;
 import lombok.*;
@@ -50,6 +51,11 @@ public class Penangangan extends BaseAuditable {
 
     @Column(name = "keterangan")
     private String keterangan;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_tujuan_ex")
+    @JsonBackReference
+    private TujuanEx tujuan;
 
     @Convert(converter = PegawaiInfoConverter.class)
     @Column(name = "pembuat", columnDefinition = "jsonb")

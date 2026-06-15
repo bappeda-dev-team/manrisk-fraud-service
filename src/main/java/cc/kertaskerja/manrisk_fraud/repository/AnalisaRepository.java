@@ -5,9 +5,21 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface AnalisaRepository extends JpaRepository<Analisa, Long> {
+
+    @Query("""
+    SELECT a
+    FROM Analisa a
+    WHERE a.tujuan.kodeTujuanOpd = :kodeTujuanOpd
+      AND a.tujuan.tahun = :tahun
+""")
+    List<Analisa> findAllByKodeTujuanOpdAndTahun(
+          @Param("kodeTujuanOpd") String kodeTujuanOpd,
+          @Param("tahun") Integer tahun
+    );
 
     @Query("SELECT a FROM Analisa a WHERE a.idRencanaKinerja = :idRekin")
     Optional<Analisa> findOneByIdRekin(@Param("idRekin") String idRekin);

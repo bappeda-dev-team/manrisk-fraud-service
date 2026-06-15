@@ -1,4 +1,4 @@
-package cc.kertaskerja.manrisk_fraud.service.external;
+package cc.kertaskerja.manrisk_fraud.service.external.rekin;
 
 import cc.kertaskerja.manrisk_fraud.exception.ResourceNotFoundException;
 import cc.kertaskerja.manrisk_fraud.helper.Crypto;
@@ -36,7 +36,7 @@ public class RencanaKinerjaServiceImpl implements RencanaKinerjaService {
         String token = accessTokenService.getAccessToken();
         String url = String.format("%s/get_rencana_kinerja/pegawai/%s?tahun=%s", rekinBaseUrl, Crypto.decrypt(nip), tahun);
 
-        org.springframework.http.HttpHeaders headers = new HttpHeaders();
+        HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(token);
 
         Map<String, Object> response = httpClient.get(url, headers, Map.class);
@@ -47,8 +47,31 @@ public class RencanaKinerjaServiceImpl implements RencanaKinerjaService {
 
             return objectMapper.readValue(jsonData, new TypeReference<>() {});
         } catch (JsonProcessingException e) {
+            // Consider using a logger like log.error(e.getMessage()) instead of System.out
             System.out.println(e.getMessage());
             return Collections.emptyList();
         }
+    }
+
+    @Override
+    public Map<String, Object> getRencanaKinerja(String nip, String tahun) {
+        String token = accessTokenService.getAccessToken();
+        String url = String.format("%s/get_rencana_kinerja/pegawai/%s?tahun=%s", rekinBaseUrl, nip, tahun);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(token);
+
+        return httpClient.get(url, headers, Map.class);
+    }
+
+    @Override
+    public Map<String, Object> getDetailRencanaKinerja(String idManrisk) {
+        String token = accessTokenService.getAccessToken();
+        String url = String.format("%s/detail-rencana_kinerja/%s", rekinBaseUrl, idManrisk);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(token);
+
+        return httpClient.get(url, headers, Map.class);
     }
 }

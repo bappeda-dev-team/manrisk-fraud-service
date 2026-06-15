@@ -1,13 +1,12 @@
 package cc.kertaskerja.manrisk_fraud.service.manajemenRisiko;
 
 import cc.kertaskerja.manrisk_fraud.dto.ManajemenRisikoDTO;
-import cc.kertaskerja.manrisk_fraud.dto.identifikasi.IdentifikasiResDTO;
 import cc.kertaskerja.manrisk_fraud.entity.*;
 import cc.kertaskerja.manrisk_fraud.exception.ResourceNotFoundException;
 import cc.kertaskerja.manrisk_fraud.helper.Crypto;
 import cc.kertaskerja.manrisk_fraud.repository.*;
+import cc.kertaskerja.manrisk_fraud.service.external.rekin.RencanaKinerjaService;
 import cc.kertaskerja.manrisk_fraud.service.global.PegawaiService;
-import cc.kertaskerja.manrisk_fraud.service.global.RencanaKinerjaService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +24,7 @@ public class ManajemenRisikoServiceImpl implements ManajemenRisikoService {
     private final PenangananRepository penangananRepository;
     private final PemantauanRepository pemantauanRepository;
     private final HasilPemantauanRepository hasilPemantauanRepository;
-    private final RencanaKinerjaService rencanaKinerjaService;
+    private final RencanaKinerjaService rekinService;
     private final PegawaiService pegawaiService;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -153,7 +152,7 @@ public class ManajemenRisikoServiceImpl implements ManajemenRisikoService {
             throw new ResourceNotFoundException("NIP is not encrypted: " + nip);
         }
 
-        Map<String, Object> resRekin = rencanaKinerjaService.getRencanaKinerja(Crypto.decrypt(nip), tahun);
+        Map<String, Object> resRekin = rekinService.getRencanaKinerja(Crypto.decrypt(nip), tahun);
         Object rkObj = resRekin.get("rencana_kinerja");
 
         if (!(rkObj instanceof List)) {
@@ -198,3 +197,4 @@ public class ManajemenRisikoServiceImpl implements ManajemenRisikoService {
         return result;
     }
 }
+

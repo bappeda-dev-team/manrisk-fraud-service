@@ -10,6 +10,8 @@ import java.util.List;
 public interface AnalisaService {
     List<AnalisaResDTO> findAllAnalisa(String nip, String tahun);
 
+    AnalisaResDTO.AnalisaByTujuanResDTO findAllByTujuanOpd(String kodeTujuanOpd, Integer tahun);
+
     AnalisaResDTO findOneAnalisa(String idRekin);
 
     AnalisaResDTO saveAnalisa(AnalisaReqDTO reqDTO);

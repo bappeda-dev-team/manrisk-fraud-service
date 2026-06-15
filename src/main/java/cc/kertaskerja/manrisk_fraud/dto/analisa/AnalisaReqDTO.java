@@ -17,6 +17,14 @@ import lombok.*;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class AnalisaReqDTO {
+    @NotBlank(message = "Kode Tujuan OPD tidak boleh kosong!")
+    @JsonProperty("kode_tujuan_opd")
+    private String kodeTujuanOpd;
+
+    @NotNull(message = "Tahun tidak boleh kosong!")
+    @JsonProperty("tahun")
+    private Integer tahun;
+
     @NotBlank(message = "Wajib memasukkan ID Rencana Kinerja dan tidak boleh kosong!")
     @JsonProperty("id_rencana_kinerja")
     private String id_rencana_kinerja;

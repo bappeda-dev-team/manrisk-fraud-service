@@ -8,8 +8,8 @@ import cc.kertaskerja.manrisk_fraud.enums.StatusEnum;
 import cc.kertaskerja.manrisk_fraud.exception.ResourceNotFoundException;
 import cc.kertaskerja.manrisk_fraud.helper.Crypto;
 import cc.kertaskerja.manrisk_fraud.repository.PenangananRepository;
+import cc.kertaskerja.manrisk_fraud.service.external.rekin.RencanaKinerjaService;
 import cc.kertaskerja.manrisk_fraud.service.global.PegawaiService;
-import cc.kertaskerja.manrisk_fraud.service.global.RencanaKinerjaService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
@@ -24,15 +24,15 @@ import java.util.Map;
 public class PenangananServiceImpl implements PenangananService {
 
     private final PenangananRepository penangananRepository;
-    private final RencanaKinerjaService rencanaKinerjaService;
+    private final RencanaKinerjaService rekinService;
     private final PegawaiService pegawaiService;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     public PenangananServiceImpl(PenangananRepository penangananRepository,
-                                 RencanaKinerjaService rencanaKinerjaService,
+                                 RencanaKinerjaService rekinService,
                                  PegawaiService pegawaiService) {
         this.penangananRepository = penangananRepository;
-        this.rencanaKinerjaService = rencanaKinerjaService;
+        this.rekinService = rekinService;
         this.pegawaiService = pegawaiService;
     }
 
@@ -102,7 +102,7 @@ public class PenangananServiceImpl implements PenangananService {
             throw new ResourceNotFoundException("NIP is not encrypted: " + nip);
         }
 
-        Map<String, Object> externalResponse = rencanaKinerjaService.getRencanaKinerja(Crypto.decrypt(nip), tahun);
+        Map<String, Object> externalResponse = rekinService.getRencanaKinerja(Crypto.decrypt(nip), tahun);
         Object rkObj = externalResponse.get("rencana_kinerja");
 
         if (!(rkObj instanceof List)) {
@@ -147,7 +147,7 @@ public class PenangananServiceImpl implements PenangananService {
 
     @Override
     public PenangananResDTO findOnePenanganan(String idRekin) {
-        Map<String, Object> detailData = rencanaKinerjaService.getDetailRencanaKinerja(idRekin);
+        Map<String, Object> detailData = rekinService.getDetailRencanaKinerja(idRekin);
         Object rkObj = detailData.get("rencana_kinerja");
 
         if (rkObj == null) {
@@ -170,7 +170,7 @@ public class PenangananServiceImpl implements PenangananService {
             throw new ResourceNotFoundException("id_rencana_kinerja is required");
         }
 
-        Map<String, Object> rekinDetail = rencanaKinerjaService.getDetailRencanaKinerja(idRekin);
+        Map<String, Object> rekinDetail = rekinService.getDetailRencanaKinerja(idRekin);
         Object rkObj = rekinDetail.get("rencana_kinerja");
 
         if (rkObj instanceof Map == false) {
@@ -211,7 +211,7 @@ public class PenangananServiceImpl implements PenangananService {
     @Override
     @Transactional
     public PenangananResDTO updatePenanganan(String idRekin, PenangananReqDTO reqDTO) {
-        Map<String, Object> rekinDetail = rencanaKinerjaService.getDetailRencanaKinerja(idRekin);
+        Map<String, Object> rekinDetail = rekinService.getDetailRencanaKinerja(idRekin);
         Object rkObj = rekinDetail.get("rencana_kinerja");
         JsonNode rkNode = objectMapper.convertValue(rekinDetail.get("rencana_kinerja"), JsonNode.class);
 
@@ -222,7 +222,7 @@ public class PenangananServiceImpl implements PenangananService {
         Penangangan penangangan = penangananRepository.findOneByIdRekin(idRekin)
                 .orElseThrow(() -> new ResourceNotFoundException("Data penanganan not found for id_rencana_kinerja: " + idRekin));
 
-        Map<String, Object> checkIdRekinUpdated = rencanaKinerjaService.getDetailRencanaKinerja(reqDTO.getId_rencana_kinerja());
+        Map<String, Object> checkIdRekinUpdated = rekinService.getDetailRencanaKinerja(reqDTO.getId_rencana_kinerja());
         Object checkIdRekinUpdatedObj = checkIdRekinUpdated.get("rencana_kinerja");
 
         if (checkIdRekinUpdatedObj instanceof Map == false) {
@@ -275,7 +275,7 @@ public class PenangananServiceImpl implements PenangananService {
 
         Penangangan updated = penangananRepository.save(entity);
 
-        Map<String, Object> rekinDetail = rencanaKinerjaService.getDetailRencanaKinerja(idRekin);
+        Map<String, Object> rekinDetail = rekinService.getDetailRencanaKinerja(idRekin);
         Object rkObj = rekinDetail.get("rencana_kinerja");
 
         if (!(rkObj instanceof Map)) {

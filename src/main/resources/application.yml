@@ -1,6 +1,6 @@
 spring:
   application:
-    name: Project-Manajemen-Risiko-Kinerja-Fraud
+    name: Project-Manajemen-Risiko
   datasource:
     username: majapahit
     password: Madiun@123
@@ -14,7 +14,7 @@ spring:
     url: jdbc:postgresql://localhost:5432/manajemen_risiko
   security:
     user:
-      name: webprogmanriskfraud
+      name: webprogmanrisk
       password: admin123
   jpa:
     # Show SQL statements
@@ -42,6 +42,8 @@ server:
 external:
   rekin:
     base-url: https://api-ekak.zeabur.app
+  penetapan:
+    base-url: https://penetapan-service-staging.zeabur.app
 logging:
   level:
     root: warn
